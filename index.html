@@ -481,13 +481,30 @@ html[data-theme=dark] .missed-retry{background:#f0964a;border-color:#f0964a;colo
 @media(max-width:560px){.mc-go{margin-left:0;width:100%}}
 @media print{#missed{display:none}}
 @media(max-width:480px){#tabs{flex-wrap:wrap;gap:0}#tabs button{flex:1 1 auto;padding:7px 4px;font-size:13px;white-space:nowrap}}
+.news-card{display:flex;align-items:stretch;margin:0 0 12px;border:1px solid #cfe1db;border-left:4px solid #2e7469;border-radius:3px;background:#f1f7f5}
+.news-go{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 12px;padding:9px 12px;text-align:left;border:0;background:none;color:inherit}
+.news-go:hover,.news-go:focus-visible{background:#e6f1ed}
+.news-tag{padding:1px 7px;border-radius:9px;background:#2e7469;color:#fff;font:600 11px var(--label);letter-spacing:.08em;text-transform:uppercase}
+.news-date{font:600 13px var(--label);letter-spacing:.03em}
+.news-text{font:13.5px var(--label);color:#4c5a56}
+.news-more{margin-left:auto;font:13px var(--label);color:#2e7469}
+.news-close{flex:none;width:36px;border:0;border-left:1px solid #cfe1db;background:none;color:#7b8581;font-size:18px;line-height:1}
+.news-close:hover,.news-close:focus-visible{background:#e6f1ed}
+html[data-theme=dark] .news-card{background:#182320;border-color:#2c423b;border-left-color:#4fae90}
+html[data-theme=dark] .news-go:hover,html[data-theme=dark] .news-go:focus-visible,html[data-theme=dark] .news-close:hover,html[data-theme=dark] .news-close:focus-visible{background:#1e2c28}
+html[data-theme=dark] .news-tag{background:#4fae90;color:#10201b}
+html[data-theme=dark] .news-text{color:#b9c2be}
+html[data-theme=dark] .news-more{color:#74d3b4}
+html[data-theme=dark] .news-close{border-left-color:#2c423b;color:#8f9893}
+@media(max-width:560px){.news-more{margin-left:0;width:100%}}
+@media print{.news-card{display:none}}
 .updates{margin:22px 0 6px;border:1px solid #dfe2dd;border-radius:3px;background:#fff}
 .updates summary{cursor:pointer;padding:10px 14px;font:600 13px var(--label);letter-spacing:.08em;text-transform:uppercase}
 .updates summary span{margin-left:12px;font-weight:400;letter-spacing:.03em;text-transform:none;color:#7b8581}
 .updates section{padding:2px 16px 0;border-top:1px solid #eef0ee}
 .updates h4{margin:12px 0 4px;font:600 13px var(--label);letter-spacing:.04em;color:#2e7469}
 .updates ul{margin:0 0 12px;padding-left:1.2em}
-.updates li{margin:5px 0;font-size:15px;line-height:1.55}
+.updates li{margin:3px 0;font-size:14.5px;line-height:1.5}
 .updates p{margin:0;padding:10px 16px;border-top:1px solid #eef0ee;font:13.5px var(--label);color:#7b8581}
 .updates a{color:#2e7469}
 html[data-theme=dark] .updates{background:#1a1d21;border-color:#2f363b}
@@ -1579,10 +1596,10 @@ function renderMissed(){
     }
   box.append(rows);
 }
-// Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes.
+// Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
-  ['12 November 2026',['Every question was solved again by an independent checker who could not see the answers, and every answer agreed. Stems that left out a condition or allowed a second reading were repaired.','The whole page was compared with the lecture slides again. Explanations that skipped a step were completed, wording now follows the slides (for example lower and upper threshold for boxplots), and questions that need the F or adjusted R² formula state it in the stem.','New: 57 exam-level questions, 33 key terms, and a written case on the two-sided Z-test for a mean with its confidence interval.']],
-  ['11 November 2026',['New Missed tab: every question you get wrong is kept there with its key idea, the key terms to reread and its solution, until you tick it as learned.','Each question is now labelled Warm-up or Exam level. Exam-level questions take several steps, have options that are close to each other, and print more R output than you need.','No question asks you to write R code any more. They ask you to read R output, as the exam does.','The sections of the Formulas tab can be expanded and collapsed, with buttons to jump between them.','Every wrong option now has a note that names the mistake behind it.','First public version: 15 weekly overviews with key terms and worked examples, practice questions with explanations, a formula sheet, a which-test flowchart and a timed practice exam.']]
+  ['12 November 2026',['57 new exam-level questions','33 new key terms','New written case: Z-test for a mean','Every answer re-checked independently','Explanations completed and matched to the slides']],
+  ['11 November 2026',['New Missed tab with key ideas and solutions','Warm-up and Exam level labels','R questions ask you to read output, not write code','Expandable Formulas sections','A note on every wrong option','First public version']]
 ];
 function renderHome(){
   const home=$('home');home.replaceChildren();
@@ -1600,6 +1617,15 @@ function renderHome(){
     resume.onclick=()=>{state.week=current.w;go(current.id)};top.append(resume);
   }
   home.append(top);
+  if(state.seenUpdate!==updates[0][0]){
+    // shown until the visitor opens the log or closes the card
+    const card=make('div','news-card'),go=make('button','news-go'),close=make('button','news-close','×');go.type=close.type='button';
+    go.append(make('span','news-tag','New'),make('span','news-date',updates[0][0]),make('span','news-text',updates[0][1].slice(0,3).join(' · ')),make('span','news-more','See all ›'));
+    close.title='Hide';close.setAttribute('aria-label','Hide this update note');
+    go.onclick=()=>{state.seenUpdate=updates[0][0];state.newsOpen=true;save();renderHome();const log=document.querySelector?.('details.updates');log?.scrollIntoView?.()};
+    close.onclick=()=>{state.seenUpdate=updates[0][0];save();renderHome()};
+    card.append(go,close);home.append(card);
+  }
   const log=everMissed();
   {
     const open=log.filter(c=>state.marks[c.id]==='review').length;
