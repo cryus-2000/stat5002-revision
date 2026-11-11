@@ -445,7 +445,12 @@ html[data-theme=dark] .formula-sheet p>strong:first-child,html[data-theme=dark] 
 .missed-log summary{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:10px 14px;cursor:pointer;font:600 13.5px var(--label);letter-spacing:.05em}
 .missed-log summary span{font-weight:400;color:#7b8581}
 .missed-rows{max-height:340px;overflow:auto;padding:0 6px 6px}
-.missed-rows button{display:flex;align-items:baseline;gap:10px;width:100%;margin:0;padding:7px 8px;border:0;border-top:1px solid #eef0ee;border-radius:0;background:none;color:inherit;text-align:left;font:14px/1.4 var(--label)}
+.missed-hint{margin:0;padding:0 14px 9px;font:13px/1.45 var(--label);color:#7b8581}
+.missed-rows .row{display:flex;align-items:stretch;border-top:1px solid #eef0ee}
+.missed-rows button{margin:0;border:0;border-radius:0;background:none;color:inherit;font:14px/1.4 var(--label)}
+.missed-rows .go{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;padding:7px 8px;text-align:left}
+.missed-rows .tick{flex:none;align-self:center;width:26px;height:26px;margin:0 4px 0 8px;padding:0;border:1.5px solid #b7c3bf;border-radius:4px;color:transparent;font-size:15px;line-height:1}
+.missed-rows .tick:hover,.missed-rows .tick:focus-visible{border-color:#3c8576;background:#3c8576;color:#fff}
 .missed-rows button:hover,.missed-rows button:focus-visible{background:#f3f6f4}
 .missed-rows .wk{flex:none;width:2.6em;color:#7b8581;font-size:12.5px}
 .missed-rows .nm{flex:1;min-width:0}
@@ -453,11 +458,14 @@ html[data-theme=dark] .formula-sheet p>strong:first-child,html[data-theme=dark] 
 .missed-rows .tag[data-s=review]{color:#b9692f}
 html[data-theme=dark] .missed-log{background:#1a1d21;border-color:#2f363b}
 html[data-theme=dark] .missed-log summary span,html[data-theme=dark] .missed-rows .wk{color:#8f9893}
-html[data-theme=dark] .missed-rows button{border-top-color:#2a3035}
+html[data-theme=dark] .missed-rows .row{border-top-color:#2a3035}
+html[data-theme=dark] .missed-hint{color:#8f9893}
+html[data-theme=dark] .missed-rows .tick{border-color:#5a6260}
+html[data-theme=dark] .missed-rows .tick:hover,html[data-theme=dark] .missed-rows .tick:focus-visible{border-color:#4fae90;background:#4fae90;color:#111}
 html[data-theme=dark] .missed-rows button:hover,html[data-theme=dark] .missed-rows button:focus-visible{background:#22272c}
 html[data-theme=dark] .missed-rows .tag{color:#4fae90}
 html[data-theme=dark] .missed-rows .tag[data-s=review]{color:#f0964a}
-@media(max-width:560px){.missed-rows button{flex-wrap:wrap;gap:2px 10px}.missed-rows .tag{width:100%;padding-left:calc(2.6em + 10px)}}
+@media(max-width:560px){.missed-rows .go{flex-wrap:wrap;gap:2px 10px}.missed-rows .tag{width:100%;padding-left:calc(2.6em + 10px)}}
 .home-tools button{margin:0;padding:0;border:0;background:none;font:12.5px var(--label);letter-spacing:.04em;color:#6a7672;text-decoration:underline;text-underline-offset:3px}
 .home-tools button:hover{background:none;color:#22211f}
 html[data-theme=dark] .stats{background:#1a1d21;border-color:#2f363b}
@@ -823,6 +831,8 @@ function btn(parent,text,fn){const b=document.createElement('button');formatText
 let blindId=null;
 function missed(){return deck.filter(c=>state.marks[c.id]==='review')}
 function everMissed(){return deck.filter(c=>state.missed[c.id])}
+// The learner says a missed question is now learned: it leaves the record. One that is still marked wrong goes back to unanswered.
+function learned(id){delete state.missed[id];if(state.marks[id]==='review'){delete state.marks[id];delete state.responses[id]}save();nav()}
 function times(n){return n===1?'once':n===2?'twice':n+' times'}
 $('retryMissed').onclick=()=>{const pool=missed().length?missed():everMissed();if(!pool.length)return;const index=pool.findIndex(c=>c.id===state.id);const c=pool[(index+1)%pool.length];state.week=c.w;state.group='All questions';go(c.id,true);$('lesson').open=false;$('reading').focus()};
 function weekly(){return deck.filter(c=>c.w===state.week)}
@@ -1461,9 +1471,10 @@ function renderHome(){
   const log=everMissed();
   if(log.length){
     const open=log.filter(c=>state.marks[c.id]==='review').length;
-    const box=make('details','missed-log'),sum=make('summary','','Missed questions · '+log.length+' recorded');sum.append(make('span','',open?open+' still to review':'all corrected'));box.append(sum);
+    const box=make('details','missed-log'),sum=make('summary','','Missed questions · '+log.length+' recorded');sum.append(make('span','',open?open+' still to review':'all corrected'));box.append(sum);if(state.logOpen)box.setAttribute('open','');box.ontoggle=()=>{state.logOpen=box.open};
+    box.append(make('p','missed-hint','Open a question to try it again with your answer hidden. Tick a question once you have learned it, and it leaves this list.'));
     const rows=make('div','missed-rows');
-    for(const c of log){const row=make('button','');row.type='button';const done=state.marks[c.id]==='ok';const tag=make('span','tag','missed '+times(state.missed[c.id])+' · '+(done?'corrected':'to review'));tag.dataset.s=done?'ok':'review';row.append(make('span','wk','W'+c.w),make('span','nm',c.t),tag);row.onclick=()=>{state.week=c.w;state.group='All questions';go(c.id,true)};rows.append(row)}
+    for(const c of log){const line=make('div','row'),row=make('button','go');row.type='button';const done=state.marks[c.id]==='ok';const tag=make('span','tag','missed '+times(state.missed[c.id])+' · '+(done?'corrected':'to review'));tag.dataset.s=done?'ok':'review';row.append(make('span','wk','W'+c.w),make('span','nm',c.t),tag);row.onclick=()=>{state.week=c.w;state.group='All questions';go(c.id,true)};const tick=make('button','tick','✓');tick.type='button';tick.title='Learned: remove from this list';tick.setAttribute('aria-label','Mark '+c.t+' as learned and remove it from the missed questions');tick.onclick=()=>{state.logOpen=true;learned(c.id);renderHome()};line.append(row,tick);rows.append(line)}
     box.append(rows);home.append(box);
   }
   // one row of three weeks per unit
