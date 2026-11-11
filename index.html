@@ -481,6 +481,20 @@ html[data-theme=dark] .missed-retry{background:#f0964a;border-color:#f0964a;colo
 @media(max-width:560px){.mc-go{margin-left:0;width:100%}}
 @media print{#missed{display:none}}
 @media(max-width:480px){#tabs{flex-wrap:wrap;gap:0}#tabs button{flex:1 1 auto;padding:7px 4px;font-size:13px;white-space:nowrap}}
+.updates{margin:22px 0 6px;border:1px solid #dfe2dd;border-radius:3px;background:#fff}
+.updates summary{cursor:pointer;padding:10px 14px;font:600 13px var(--label);letter-spacing:.08em;text-transform:uppercase}
+.updates summary span{margin-left:12px;font-weight:400;letter-spacing:.03em;text-transform:none;color:#7b8581}
+.updates section{padding:2px 16px 0;border-top:1px solid #eef0ee}
+.updates h4{margin:12px 0 4px;font:600 13px var(--label);letter-spacing:.04em;color:#2e7469}
+.updates ul{margin:0 0 12px;padding-left:1.2em}
+.updates li{margin:5px 0;font-size:15px;line-height:1.55}
+.updates p{margin:0;padding:10px 16px;border-top:1px solid #eef0ee;font:13.5px var(--label);color:#7b8581}
+.updates a{color:#2e7469}
+html[data-theme=dark] .updates{background:#1a1d21;border-color:#2f363b}
+html[data-theme=dark] .updates section,html[data-theme=dark] .updates p{border-top-color:#2a3035}
+html[data-theme=dark] .updates h4,html[data-theme=dark] .updates a{color:#74d3b4}
+html[data-theme=dark] .updates summary span,html[data-theme=dark] .updates p{color:#8f9893}
+@media print{.updates{display:none}}
 .missed-log{margin:0 0 18px;border:1px solid #dfe2dd;border-radius:3px;background:#fff}
 .missed-log summary{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:10px 14px;cursor:pointer;font:600 13.5px var(--label);letter-spacing:.05em}
 .missed-log summary span{font-weight:400;color:#7b8581}
@@ -1565,6 +1579,11 @@ function renderMissed(){
     }
   box.append(rows);
 }
+// Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes.
+const updates=[
+  ['12 November 2026',['Every question was solved again by an independent checker who could not see the answers, and every answer agreed. Stems that left out a condition or allowed a second reading were repaired.','The whole page was compared with the lecture slides again. Explanations that skipped a step were completed, wording now follows the slides (for example lower and upper threshold for boxplots), and questions that need the F or adjusted R² formula state it in the stem.','New: 57 exam-level questions, 33 key terms, and a written case on the two-sided Z-test for a mean with its confidence interval.']],
+  ['11 November 2026',['New Missed tab: every question you get wrong is kept there with its key idea, the key terms to reread and its solution, until you tick it as learned.','Each question is now labelled Warm-up or Exam level. Exam-level questions take several steps, have options that are close to each other, and print more R output than you need.','No question asks you to write R code any more. They ask you to read R output, as the exam does.','The sections of the Formulas tab can be expanded and collapsed, with buttons to jump between them.','Every wrong option now has a note that names the mistake behind it.','First public version: 15 weekly overviews with key terms and worked examples, practice questions with explanations, a formula sheet, a which-test flowchart and a timed practice exam.']]
+];
 function renderHome(){
   const home=$('home');home.replaceChildren();
   const make=(tag,cls,text)=>{const el=document.createElement(tag);el.className=cls;if(text!==undefined)el.textContent=text;return el};
@@ -1617,6 +1636,11 @@ function renderHome(){
   const star=make('a','star-link','★ Star this project on GitHub');star.setAttribute('href','https://github.com/cryus-2000/stat5002-revision');star.setAttribute('target','_blank');star.setAttribute('rel','noopener');dressStar(star,'Star on GitHub');
   tools.append(star);
   home.append(tools);
+  const news=make('details','updates'),sum=make('summary','','Update log');sum.append(make('span','','last updated '+updates[0][0]+' · '+deck.length+' questions'));news.append(sum);
+  if(state.newsOpen)news.setAttribute('open','');news.ontoggle=()=>{state.newsOpen=news.open};
+  for(const [date,items] of updates){const day=make('section','');day.append(make('h4','',date));const list=make('ul','');for(const text of items)list.append(make('li','',text));day.append(list);news.append(day)}
+  const tell=make('p','');tell.append('Found a mistake? ');const issue=make('a','','Report it on GitHub');issue.setAttribute('href','https://github.com/cryus-2000/stat5002-revision/issues');issue.setAttribute('target','_blank');issue.setAttribute('rel','noopener');tell.append(issue,'.');news.append(tell);
+  home.append(news);
 }
 function applyView(){
   const view=['home','overview','formulas','missed'].includes(state.view)?state.view:'practice';
