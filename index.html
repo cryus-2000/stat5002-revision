@@ -1239,6 +1239,9 @@ function buildChooser(){
   Object.keys(distClass).forEach((d,k)=>{if(k)legend.append(' · ');legend.append(el('span','ft-dist ft-'+distClass[d],d),' '+distName[d])});
   box.append(tree,legend);
   show();
+  // a click anywhere outside the open panel, or Escape, closes it
+  document.addEventListener?.('click',e=>{if(!chosen)return;const t=e.target;if(detail.contains?.(t)||t.closest?.('.ft-test'))return;chosen=null;show()});
+  document.addEventListener?.('keydown',e=>{if(chosen&&e.key==='Escape'){chosen=null;show()}});
 }
 function renderHome(){
   const home=$('home');home.replaceChildren();
