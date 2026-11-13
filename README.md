@@ -26,12 +26,12 @@ Topics by week: data and graphs, numerical summaries, normal curves, correlation
 ## How to use it
 
 1. Start from the **All weeks** tab and pick a week, or choose one in **Lecture**. A week you have not started opens on its **Overview** tab. Switch to **Practice** when ready, and open **Formulas** whenever you need them; your place in the questions is kept.
-2. Follow **Learning order · All questions**, or select a stage. The sidebar uses stage dropdowns: click a heading to open its question list, or click it again to close it. One list opens at a time and scrolls independently, so all stage headings remain visible. Each heading shows your checked progress; opening a question reveals it in its stage. For choice questions, the page marks your answer and explains the working and distractors. For written cases, complete all parts before submitting; no individual answer is revealed early.
+2. Follow **Learning order · All questions**, or select a stage. Each stage in the sidebar is a dropdown: click it to see the full list of questions and select one to jump there. The stage controls keep their names and progress counts; the current stage is highlighted and its current question has an arrow in the list. For choice questions, the page marks your answer and explains the working and distractors. For written cases, complete all parts before submitting; no individual answer is revealed early.
 3. In a written case, use **Previous part** and **Next part** to move through your drafts. After submitting, compare your answer with the reference and select **My answer meets the key points** or **I need to review this part**. **Revise this case** hides all its answers again while keeping your drafts.
-4. Open **Missed** to browse your recorded questions by week. Each card opens the original question; returning to Missed restores your position. Corrected questions stay until you mark them **Learned**. **Retry a missed question** cycles through the questions still to review, with your earlier answer hidden. Expand **Key terms to reread** below the cards for their definitions, tables and diagrams.
+4. The top **Missed questions** button and the **Missed** tab open the same notebook, grouped by week. Each card opens the original question; returning to Missed restores your position. Corrected questions stay until you mark them **Learned**. Use the retry button inside the notebook to practise with your earlier answer hidden. Expand **Key terms to reread** below the cards for their definitions, tables and diagrams.
 5. **MCQ practice test** gives 16 questions against a 48-minute clock, without feedback. After you submit, it shows each solution and lists the weeks worth revisiting. Each new attempt draws a different paper. Practise the written cases separately as complete groups.
 
-Keyboard: `A`–`D` or `1`–`4` to answer, `←` and `→` to move between questions. Use `Tab` to focus a stage heading and `Enter` or `Space` to expand or collapse it.
+Keyboard: `A`–`D` or `1`–`4` to answer, `←` and `→` to move between questions. Use `Tab` to focus a stage dropdown, open it, then use the arrow keys and `Enter` to select a question.
 
 **Copy question for chat** copies the question and your answer for tutoring. An unsubmitted written case copies only your draft and asks for a hint; its reference answer is not included.
 
@@ -64,10 +64,10 @@ The whole site is one file. Download `index.html` and open it in a current brows
 
 - 首页是 15 周总览，显示每周进度和正确率。概览里有 8 个可以自己拖动的小演示（中心极限定理、置信区间覆盖率、t 分布与正态分布的对比等）。公式页里有一张"该用哪个检验"的流程图，从数据类型一路分支到 12 个检验，点开任一检验可以看到原假设、公式、算例和 R 写法。每周有概览、图示、术语解释和一到两道完整例题；公式表在单独的标签页里，下方附"什么情况用什么检验"和"R 输出怎么读"两张通用表，可一键打印。
 - 共 309 题。每周按“基础 → 应用 → 综合 → 整组书面题”排列，选学题放最后；基础 45 题、应用 122 题、综合 84 题、选学 3 题，另有 55 个书面小问。按实际推理及前置知识复查排序，直接读取和应用在前，综合判断在后。
-- 左侧阶段标题做成下拉菜单，一次展开一组，题目列表内部滚动；所有阶段标题始终可见，不需要先收起才保留。点击标题切换或收起列表，跳转到题目时自动展开所在组并显示当前题。
+- 左侧每个阶段使用真正的下拉选择框：点击后展开完整题目列表，选择后直接跳题，不再把题目挤在侧栏的小滚动框里。各阶段入口保留名称和进度，当前阶段高亮，列表用箭头标出当前题。
 - 11 组书面题（55 小问）必须整组尝试并提交后才显示参考答案；草稿自动保存。提交后按参考写法自评，不再以选对选项代替书面能力。不会的小问可以写下尝试或疑问。
 - 书面题要求自己定义参数、建式、解释及下结论；保留必要 R 输出，移除提前透露前面答案的计算提示。综合题减少不必要的反推、枚举和繁琐运算。修订题保留旧答案和草稿，并提示按当前题面复查。
 - 选择题模拟从 229 题的题池随机抽 16 题，限时 48 分钟；它不包含整场考试的书面部分。24 道跨周题保留，题目 ID 不变，已有进度继续使用。
 - 进度只保存在你自己的浏览器里，答题记录不会上传；页面唯一的联网请求是向 GitHub 公开接口读取本仓库的 star 数；可以导出成文件，在另一台设备上导入。
 - 支持深色模式。页面内容为英文，题目和解析均为自编，不含课件和官方样卷。
-- 错题本按 Week 分组，每题一张卡片，显示待复习／已改正和答错次数；点击卡片进入原题，返回时回到刚才的位置。顶部可按周跳转，点 Learned 移除已掌握的题，相关知识点、表格和图收在下方展开区。已有记录和草稿继续保留。
+- 顶部 Missed questions 按钮与 Missed 标签进入同一个错题本。错题本按 Week 分组，每题一张卡片，显示待复习／已改正和答错次数；点击卡片进入原题，返回时回到刚才的位置。可按周跳转、从错题本内重做，点 Learned 移除已掌握的题，相关知识点、表格和图收在下方展开区。已有记录和草稿继续保留。
