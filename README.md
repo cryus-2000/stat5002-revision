@@ -19,6 +19,7 @@ It is written so that someone who missed a lecture can still follow each questio
 | Learning stages | 45 foundations, 122 application, 84 synthesis questions | Start with direct concepts and familiar output, then practise methods and finally combine ideas. Question format does not determine difficulty. The 24 cross-week questions are part of these stages; the menu can also show only those. Three additional questions are optional |
 | Written-answer cases | 11 cases, 55 parts | Write and save a draft for every part, then **Submit whole case** to reveal all reference answers. A note of uncertainty counts as an attempt. Compare the working and self-check each part; the page does not automatically grade prose |
 | MCQ practice test | 16 questions in 48 minutes | Drawn from a pool of 229, at least one from every week, marked only after you submit. This tests multiple choice, not the written-answer portion of a full exam |
+| Missed questions | Grouped by week | A clickable card for each recorded question, with review status and missed count. Week shortcuts help you find a question; supporting definitions, tables and diagrams remain available below |
 
 Topics by week: data and graphs, numerical summaries, normal curves, correlation and regression, probability, box models, the central limit theorem, interval estimation, Z-tests, one-sample t and bootstrap, two-sample tests, chi-squared tests, multiple regression, model selection, logistic regression.
 
@@ -27,7 +28,7 @@ Topics by week: data and graphs, numerical summaries, normal curves, correlation
 1. Start from the **All weeks** tab and pick a week, or choose one in **Lecture**. A week you have not started opens on its **Overview** tab. Switch to **Practice** when ready, and open **Formulas** whenever you need them; your place in the questions is kept.
 2. Follow **Learning order · All questions**, or select a stage. The sidebar uses stage dropdowns: click a heading to open its question list, or click it again to close it. One list opens at a time and scrolls independently, so all stage headings remain visible. Each heading shows your checked progress; opening a question reveals it in its stage. For choice questions, the page marks your answer and explains the working and distractors. For written cases, complete all parts before submitting; no individual answer is revealed early.
 3. In a written case, use **Previous part** and **Next part** to move through your drafts. After submitting, compare your answer with the reference and select **My answer meets the key points** or **I need to review this part**. **Revise this case** hides all its answers again while keeping your drafts.
-4. **Retry a missed question** cycles through everything you got wrong, across all weeks, with your earlier answer hidden.
+4. Open **Missed** to browse your recorded questions by week. Each card opens the original question; returning to Missed restores your position. Corrected questions stay until you mark them **Learned**. **Retry a missed question** cycles through the questions still to review, with your earlier answer hidden. Expand **Key terms to reread** below the cards for their definitions, tables and diagrams.
 5. **MCQ practice test** gives 16 questions against a 48-minute clock, without feedback. After you submit, it shows each solution and lists the weeks worth revisiting. Each new attempt draws a different paper. Practise the written cases separately as complete groups.
 
 Keyboard: `A`–`D` or `1`–`4` to answer, `←` and `→` to move between questions. Use `Tab` to focus a stage heading and `Enter` or `Space` to expand or collapse it.
@@ -69,3 +70,4 @@ The whole site is one file. Download `index.html` and open it in a current brows
 - 选择题模拟从 229 题的题池随机抽 16 题，限时 48 分钟；它不包含整场考试的书面部分。24 道跨周题保留，题目 ID 不变，已有进度继续使用。
 - 进度只保存在你自己的浏览器里，答题记录不会上传；页面唯一的联网请求是向 GitHub 公开接口读取本仓库的 star 数；可以导出成文件，在另一台设备上导入。
 - 支持深色模式。页面内容为英文，题目和解析均为自编，不含课件和官方样卷。
+- 错题本按 Week 分组，每题一张卡片，显示待复习／已改正和答错次数；点击卡片进入原题，返回时回到刚才的位置。顶部可按周跳转，点 Learned 移除已掌握的题，相关知识点、表格和图收在下方展开区。已有记录和草稿继续保留。

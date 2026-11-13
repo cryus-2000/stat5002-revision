@@ -480,6 +480,37 @@ html[data-theme=dark] .formula-sheet p>strong:first-child,html[data-theme=dark] 
 .missed-head span{margin-left:12px;font-weight:400;letter-spacing:.04em;text-transform:none;color:#8a5a2c}
 #missed .missed-hint{padding:0 0 10px}
 .weak-head{margin:18px 0 4px;font:600 13px var(--label);letter-spacing:.08em;text-transform:uppercase;color:#7a5a4c}
+.missed-week-nav{display:flex;flex-wrap:wrap;gap:7px;min-height:0;margin:18px 0 28px;overflow:visible;scrollbar-gutter:auto}
+.missed-week-nav button{flex:0 0 auto;width:auto;margin:0;padding:7px 12px;border:1px solid #d5dcd7;background:#f6f8f6;border-radius:3px;color:#3b5c53;font:13px/1.5 var(--label)}
+.missed-week{margin:0 0 30px;scroll-margin-top:18px}
+.missed-week-title{margin:0;font:600 18px/1.4 var(--label);color:#3b5c53}
+.missed-week-count{margin:4px 0 12px;color:#74817b;font:12px/1.5 var(--label)}
+.missed-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.missed-question-card{display:flex;flex-direction:column;min-width:0;border:1px solid #d9dfdb;border-radius:4px;background:#fff;overflow:hidden}
+.missed-question-card:focus-within{outline:2px solid #35766c;outline-offset:2px}
+.missed-question-card .missed-card-open{display:flex;flex-direction:column;gap:9px;flex:1;width:100%;min-width:0;margin:0;padding:17px 18px;border:0;background:transparent;color:inherit;text-align:left;border-radius:0;cursor:pointer}
+.missed-question-card .missed-card-open:hover{background:#f3f7f4}
+.missed-card-meta{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;color:#7b817c;font:11.5px/1.5 var(--label)}
+.missed-card-status{padding:2px 7px;border-radius:3px;color:#9b4d2d;background:#fbefe7}
+.missed-question-card[data-status=ok] .missed-card-status{color:#2e7469;background:#eaf3ed}
+.missed-card-title{font:600 19px/1.35 Georgia,"Times New Roman",serif}
+.missed-card-preview{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-height:3em;color:#69756e;font:15px/1.5 Georgia,"Times New Roman",serif}
+.missed-card-link{margin-top:auto;padding-top:4px;color:#2e7469;font:12px/1.5 var(--label)}
+.missed-question-card .missed-card-remove{align-self:flex-end;min-height:40px;margin:0;padding:8px 18px;border:0;background:transparent;color:#77827b;font:12px/1.5 var(--label);cursor:pointer}
+.missed-question-card .missed-card-remove:hover{color:#2e7469;background:#f3f7f4}
+.missed-terms{margin:28px 0;padding:16px 0 0;border-top:1px solid #d9dfdb}
+.missed-terms>summary{margin-bottom:12px;cursor:pointer;color:#52675d;font:600 14px/1.5 var(--label)}
+.missed-empty{padding:24px;border:1px dashed #cad6ce;color:#69756e;font:16px/1.6 var(--label)}
+html[data-theme=dark] .missed-question-card{background:#1a1d21;border-color:#353c42}
+html[data-theme=dark] .missed-week-nav button{background:#1b1f23;border-color:#353c42;color:#b3c8bf}
+html[data-theme=dark] .missed-week-title,html[data-theme=dark] .missed-terms>summary{color:#b3c8bf}
+html[data-theme=dark] .missed-week-count,html[data-theme=dark] .missed-card-meta,html[data-theme=dark] .missed-card-preview,html[data-theme=dark] .missed-question-card .missed-card-remove{color:#a2ada6}
+html[data-theme=dark] .missed-card-status{background:#3b2a20;color:#f0b482}
+html[data-theme=dark] .missed-question-card[data-status=ok] .missed-card-status{background:#20382e;color:#a4c8bd}
+html[data-theme=dark] .missed-question-card .missed-card-open:hover,html[data-theme=dark] .missed-question-card .missed-card-remove:hover{background:#242b29}
+html[data-theme=dark] .missed-card-link{color:#a4c8bd}
+html[data-theme=dark] .missed-terms,html[data-theme=dark] .missed-empty{border-color:#353c42}
+@media(max-width:720px){.missed-card-grid{grid-template-columns:1fr}.missed-week-nav button{min-height:44px}.missed-question-card .missed-card-remove{min-height:44px}.missed-week-title{font-size:16px}.missed-card-title{font-size:18px}}
 .weak-rows{margin-bottom:6px}
 .weak-rows .kp-acts button:first-child{border-color:#d3dad7;background:#fff;color:inherit}
 html[data-theme=dark] .weak-head{color:#f0964a}
@@ -1007,7 +1038,7 @@ function formatText(el,value){
 }
 
 function btn(parent,text,fn){const b=document.createElement('button');formatText(b,text);b.onclick=fn;parent.append(b);return b}
-let blindId=null;
+let blindId=null,missedReturnId=null;
 function missed(){return deck.filter(c=>state.marks[c.id]==='review')}
 // Learning stages follow prerequisites and reasoning load; question format does not determine difficulty.
 const stageLabels={foundation:'1 · Foundations',application:'2 · Apply the ideas',synthesis:'3 · Combine the ideas',written:'4 · Written cases',optional:'Optional · Further practice'};
@@ -1778,20 +1809,44 @@ function buildChooser(){
   document.addEventListener?.('click',e=>{if(!chosen)return;const t=e.target;if(detail.contains?.(t)||t.closest?.('.ft-test'))return;chosen=null;show()});
   document.addEventListener?.('keydown',e=>{if(chosen&&e.key==='Escape'){chosen=null;show()}});
 }
-// The Missed tab: every question answered wrongly, until it is ticked as learned. Each entry opens to its key idea, the related key terms and the solution.
+// The Missed page groups saved questions by week and opens the original practice card.
 function renderMissed(){
   const box=$('missed');if(!box||!box.replaceChildren)return;box.replaceChildren();
   const make=(tag,cls,text)=>{const el=document.createElement(tag);el.className=cls;if(text!==undefined)el.textContent=text;return el};
   const log=everMissed(),open=log.filter(c=>state.marks[c.id]==='review').length;
-  const head=make('h3','missed-head','Missed questions');head.append(make('span','',log.length?log.length+' recorded · '+(open?open+' still to review':'all corrected'):'none yet'));box.append(head);
-  box.append(make('p','missed-hint',log.length?'Every question you get wrong is kept here until you tick it as learned. Open one to see the idea it tests, the key terms to reread and its solution.':'Nothing here yet. Each question you get wrong is added to this list, with the idea it tests and its solution, and stays until you tick it as learned.'));
+  const head=make('h3','missed-head','Missed questions');head.append(make('span','',log.length?log.length+' recorded · '+(open?open+' to review':'all corrected'):'none yet'));box.append(head);
+  if(!log.length){box.append(make('p','missed-empty','No missed questions yet. Questions you get wrong will appear here, grouped by week.'));return}
+  box.append(make('p','missed-hint','Choose a week, then open a card to return to that question. Corrected questions stay here until you mark them as learned.'));
   if(open){const all=make('button','missed-retry','Retry the '+(open===1?'one':open)+' still to review');all.type='button';all.onclick=()=>$('retryMissed').onclick();box.append(all)}
+  const jump=make('nav','missed-week-nav');jump.setAttribute('aria-label','Jump to a week');box.append(jump);
+  for(let w=1;w<=15;w++){
+    const cards=log.filter(c=>c.w===w);if(!cards.length)continue;
+    const section=make('section','missed-week');section.id='missed-week-'+w;section.dataset.week=String(w);section.setAttribute('tabindex','-1');
+    const heading=make('h4','missed-week-title','Week '+w+' · '+names[w-1]);heading.id=section.id+'-title';section.setAttribute('aria-labelledby',heading.id);
+    const pending=cards.filter(c=>state.marks[c.id]==='review').length;
+    section.append(heading,make('p','missed-week-count',cards.length+(cards.length===1?' question':' questions')+' · '+pending+' to review'));
+    const shortcut=make('button','','W'+w+' · '+cards.length);shortcut.type='button';shortcut.setAttribute('aria-label','Week '+w+', '+cards.length+' recorded questions');shortcut.onclick=()=>{section.style.scrollMarginTop=($('tabs').getBoundingClientRect().height+18)+'px';section.scrollIntoView({block:'start'});section.focus({preventScroll:true})};jump.append(shortcut);
+    const grid=make('ul','missed-card-grid');
+    for(const c of cards){
+      const item=make('li','missed-question-card'),done=state.marks[c.id]==='ok';item.dataset.id=String(c.id);item.dataset.status=done?'ok':'review';
+      const button=make('button','missed-card-open');button.type='button';button.dataset.id=String(c.id);button.setAttribute('aria-label','Open '+c.t);
+      const meta=make('span','missed-card-meta');meta.append(make('span','missed-card-status',done?'Corrected':'To review'),make('span','','Missed '+times(state.missed[c.id])));
+      const title=make('strong','missed-card-title');formatText(title,c.t);
+      const preview=make('span','missed-card-preview');formatText(preview,consoleItems[c.id]?.[0]||c.q);
+      button.append(meta,title,preview,make('span','missed-card-link','Open question →'));
+      button.onclick=()=>{missedReturnId=c.id;state.week=c.w;state.group='All questions';go(c.id);$('reading').focus()};
+      const remove=make('button','missed-card-remove','✓ Learned');remove.type='button';remove.title='Remove this question from your missed list';remove.setAttribute('aria-label','Mark '+c.t+' as learned and remove it from the missed questions');
+      remove.onclick=()=>{if(missedReturnId===c.id)missedReturnId=null;learned(c.id);renderMissed();(document.getElementById('missed-week-'+c.w)||$('reading')).focus?.({preventScroll:true})};
+      item.append(button,remove);grid.append(item);
+    }
+    section.append(grid);box.append(section);
+  }
   // weak spots: the key terms that the missed questions point to, the most frequent first
   const by=new Map();
   for(const c of log.filter(c=>!writtenKey(c)||state.caseSubmitted[writtenKey(c)]))for(const [w,name] of c.kp?.t||[]){const k=w+'|'+name;if(!by.has(k))by.set(k,{k,w,name,items:[]});by.get(k).items.push(c)}
-  const weak=[...by.values()].filter(x=>guides[x.w-1]?.terms.some(t=>t[0]===x.name)).sort((a,b)=>b.items.length-a.items.length||a.w-b.w).slice(0,8);
+  const weak=[...by.values()].filter(x=>guides[x.w-1]?.terms.some(t=>t[0]===x.name)).sort((a,b)=>b.items.length-a.items.length||a.w-b.w);
   if(weak.length){
-    box.append(make('h4','weak-head','Key terms to reread'),make('p','missed-hint','These are the key terms behind your missed questions, the ones you have missed most often first. Open one to read its definition and see which questions it came from.'));
+    const terms=make('details','missed-terms'),summary=make('summary','','Key terms to reread · '+weak.length);terms.append(summary,make('p','missed-hint','Definitions, tables and diagrams for your recorded questions.'));
     const list=make('div','missed-rows weak-rows');
     for(const x of weak){
       const item=make('details','row'),head=make('summary','go'),name=make('span','nm');formatText(name,x.name);
@@ -1803,26 +1858,12 @@ function renderMissed(){
       for(const c of x.items){const again=make('button','');again.type='button';formatText(again,'Retry: '+c.t);again.onclick=()=>{state.week=c.w;state.group='All questions';go(c.id,true)};acts.append(again)}
       body.append(acts);item.append(head,body);list.append(item);
     }
-    box.append(list,make('h4','weak-head','All missed questions'));
+    terms.append(list);box.append(terms);
   }
-    const rows=make('div','missed-rows');
-    for(const c of log){
-      const item=make('details','row'),head=make('summary','go'),done=state.marks[c.id]==='ok';
-      const tag=make('span','tag','missed '+times(state.missed[c.id])+' · '+(done?'corrected':'to review'));tag.dataset.s=done?'ok':'review';
-      const tick=make('button','tick','✓');tick.type='button';tick.title='Learned: remove from this list';tick.setAttribute('aria-label','Mark '+c.t+' as learned and remove it from the missed questions');
-      tick.onclick=e=>{e?.preventDefault?.();e?.stopPropagation?.();if(state.logItem===c.id)delete state.logItem;learned(c.id);renderMissed()};
-      const name=make('span','nm');formatText(name,c.t);head.append(make('span','wk','W'+c.w),name,tag,tick);
-      if(state.logItem===c.id)item.setAttribute('open','');item.ontoggle=()=>{if(item.open)state.logItem=c.id;else if(state.logItem===c.id)delete state.logItem};
-      const body=make('div','kp'),locked=writtenKey(c)&&!state.caseSubmitted[writtenKey(c)];if(!locked)keyIdea(body,c,true);
-      const sol=make('p','kp-sol'),text=make('span','');sol.append(make('strong','','Solution'));formatText(text,locked?'Finish and submit the whole written case to see its answers. Your saved draft is kept.':[c.why,c.explanationNote].filter(Boolean).join(' '));sol.append(text);body.append(sol);
-      const acts=make('p','kp-acts'),again=make('button','','Try this question again'),over=make('button','','Week '+c.w+' overview');again.type=over.type='button';
-      again.onclick=()=>{state.week=c.w;state.group='All questions';go(c.id,true)};over.onclick=()=>{state.week=c.w;setView('overview');render()};acts.append(again,over);body.append(acts);
-      item.append(head,body);rows.append(item);
-    }
-  box.append(rows);
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['13 Nov 2026 · Missed questions by week', ['The Missed page groups recorded questions by week, with a card for each question. Open a card to return to the original question; coming back restores your place.', 'Cards show review status and missed counts. Mark a question as learned to remove it, or retry the questions still to review. Key-term definitions, tables and diagrams are available in the expandable section below.']],
 ['13 Nov 2026 · Complete key-term explanations', ['Restored supporting tables and diagrams in missed-question explanations and Key terms to reread. Definitions now show the same complete material as the weekly overview.']],
 ['13 Nov 2026 · Exam practice and navigation', ['Stage dropdowns keep every heading visible while the open question list scrolls. Open one stage at a time and jump directly to a question.', 'Revised synthesis questions focus on statistical decisions with manageable arithmetic. Written cases require your own setup, working and contextual conclusions, with useful R output retained.', 'No questions were added or removed. Revised questions keep your earlier progress and drafts, with a notice to check the current wording.']],
   ['13 November 2026',['Collapsible stage lists keep questions easy to find; collapsed headings stay visible while scrolling','A second prerequisite and difficulty review across all weeks','Weekly practice now builds from foundations to combined ideas','Written cases reveal answers only after the whole case is submitted','Corrected explanations and connected the regression properties','Autosave your progress to a file']],
@@ -1859,7 +1900,7 @@ function renderHome(){
   {
     const open=log.filter(c=>state.marks[c.id]==='review').length;
     const card=make('button','missed-card');card.type='button';
-    card.append(make('span','mc-title','Missed questions'),make('span','mc-count',log.length?log.length+' recorded · '+(open?open+' still to review':'all corrected'):'none yet'),make('span','mc-go',log.length?'Open the list, with the key idea and solution for each ›':'Questions you get wrong are collected in the Missed tab ›'));
+    card.append(make('span','mc-title','Missed questions'),make('span','mc-count',log.length?log.length+' recorded · '+(open?open+' still to review':'all corrected'):'none yet'),make('span','mc-go',log.length?'Browse your questions by week ›':'Questions you get wrong are collected in the Missed tab ›'));
     card.onclick=()=>setView('missed');home.append(card);
   }
   // one row of three weeks per unit
@@ -1904,7 +1945,10 @@ function applyView(){
   if(view==='home')renderHome();
   if(view==='missed')renderMissed();
 }
-function setView(view){state.view=view;save();applyView();$('reading').scrollTop=0}
+function setView(view){
+ state.view=view;save();applyView();$('reading').scrollTop=0;
+ if(view==='missed'&&missedReturnId!==null){const card=[...($('missed').querySelectorAll?.('.missed-card-open')||[])].find(b=>b.dataset.id===String(missedReturnId));if(card){card.scrollIntoView?.({block:'center'});card.focus?.({preventScroll:true})}}
+}
 $('tabHome').onclick=()=>setView('home');$('refs').innerHTML=references;buildChooser();setUpFormulaSections();$('tabOverview').onclick=()=>setView('overview');$('tabPractice').onclick=()=>setView('practice');$('tabFormulas').onclick=()=>setView('formulas');$('tabMissed').onclick=()=>setView('missed');$('startPractice').onclick=()=>setView('practice');
 $('printFormulas').onclick=()=>{
   const area=$('printArea');area.replaceChildren();
