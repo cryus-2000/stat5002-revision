@@ -890,7 +890,9 @@ html[data-theme=dark] .term-tbl td.pic circle{fill:#f0964a}
 
 .case-progress{font-weight:bold;color:#2e7469}.case-submit{font-weight:bold}#draft textarea{display:block;margin:12px 0;min-height:160px}#draft button{font-size:15px;margin:5px 6px 5px 0}html[data-theme=dark] .case-progress{color:#a4c8bd}
 
-.nav-stage{margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid rgba(128,128,128,.22)}
+.nav-stage{margin:0;padding-bottom:13px;border-bottom:1px solid rgba(128,128,128,.22)}
+.nav-stage:not([open]){position:sticky;top:var(--nav-pin,0px);z-index:2;background:#f2f0ec}
+html[data-theme=dark] .nav-stage:not([open]){background:#0d0f11}
 .nav-stage>summary{display:flex;align-items:center;gap:7px;list-style:none;cursor:pointer;padding:9px 4px;font:600 12px/1.5 Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase}
 .nav-stage>summary::-webkit-details-marker{display:none}
 .nav-stage>summary::before{content:'›';font-size:19px;line-height:1;flex:none;width:10px;transform-origin:50% 50%}
@@ -1550,7 +1552,7 @@ for(const [stage,cards] of stages){
   count.className='stage-count';count.textContent=checked+' / '+cards.length;count.title='Correct or self-checked / questions';
   summary.append(label,count);summary.dataset.current=String(current);
   body.className='nav-items';group.append(summary,body);$('list').append(group);
-  group.ontoggle=()=>{if(group.isConnected===false)return;if(state.navOpen[storageKey]!==group.open){state.navOpen[storageKey]=group.open;save()}};
+  group.ontoggle=()=>{if(group.isConnected===false)return;pinNavStages();if(state.navOpen[storageKey]!==group.open){state.navOpen[storageKey]=group.open;save()}};
   let lastCase=null;
   for(const c of cards){
     const split=/^(Extended-answer practice|Exam case studies)$/.test(c.g)?String(c.t).match(/^(.*) (\d+) · (.*)$/):null;
@@ -1562,7 +1564,11 @@ for(const [stage,cards] of stages){
     if(split)b.className='part';
     b.setAttribute('aria-current',String(c.id===state.id));
   }
-}}
+}
+pinNavStages();
+}
+function pinNavStages(){let top=0;for(const group of $('list').children){group.setAttribute('style','--nav-pin:'+top+'px');if(!group.open)top+=group.offsetHeight||0}}
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(pinNavStages).observe($('list'));
 function motion(el,dy){if(!el.animate||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;el.getAnimations().forEach(a=>a.cancel());el.animate([{opacity:.72,transform:"translateY("+dy+"px)"},{opacity:1,transform:"translateY(0)"}],{duration:210,easing:"cubic-bezier(.2,.75,.25,1)"})}
 // GitHub-style star button. The count is read from GitHub's public API, kept for an hour, and simply left out when offline.
 const starIcon='<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"/></svg>';
@@ -1753,7 +1759,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
-  ['13 November 2026',['Collapsible stage lists keep questions easy to find','A second prerequisite and difficulty review across all weeks','Weekly practice now builds from foundations to combined ideas','Written cases reveal answers only after the whole case is submitted','Corrected explanations and connected the regression properties','Autosave your progress to a file']],
+  ['13 November 2026',['Collapsible stage lists keep questions easy to find; collapsed headings stay visible while scrolling','A second prerequisite and difficulty review across all weeks','Weekly practice now builds from foundations to combined ideas','Written cases reveal answers only after the whole case is submitted','Corrected explanations and connected the regression properties','Autosave your progress to a file']],
   ['12 November 2026',['126 questions reworked so they need no calculator','Overviews and formula sheets now use the lecture notation','60 key terms rewritten with the lecture formulas','Pictures for homoscedastic data and for residual patterns','36 question stems reworded for clarity','124 repeated or recall-only questions removed','24 cross-week questions that combine topics','Missed tab lists the key terms you miss most','57 new exam-level questions','33 new key terms','New written case: Z-test for a mean','Every answer re-checked independently','Explanations completed and matched to the slides']],
   ['11 November 2026',['New Missed tab with key ideas and solutions','Warm-up and Exam level labels','R questions ask you to read output, not write code','Expandable Formulas sections','A note on every wrong option','First public version']]
 ];
