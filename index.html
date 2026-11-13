@@ -482,9 +482,17 @@ html[data-theme=dark] .formula-sheet p>strong:first-child,html[data-theme=dark] 
 .weak-head{margin:18px 0 4px;font:600 13px var(--label);letter-spacing:.08em;text-transform:uppercase;color:#7a5a4c}
 .missed-week-nav{display:flex;flex-wrap:wrap;gap:7px;min-height:0;margin:18px 0 28px;overflow:visible;scrollbar-gutter:auto}
 .missed-week-nav button{flex:0 0 auto;width:auto;margin:0;padding:7px 12px;border:1px solid #d5dcd7;background:#f6f8f6;border-radius:3px;color:#3b5c53;font:13px/1.5 var(--label)}
-.missed-week{margin:0 0 30px;scroll-margin-top:18px}
-.missed-week-title{margin:0;font:600 18px/1.4 var(--label);color:#3b5c53}
-.missed-week-count{margin:4px 0 12px;color:#74817b;font:12px/1.5 var(--label)}
+.missed-week{margin:0 0 10px;scroll-margin-top:18px;border:1px solid #d9e1db;border-radius:6px;background:#fff}
+.missed-week>summary{display:grid;grid-template-columns:14px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:62px;padding:14px 18px;list-style:none;cursor:pointer;border-radius:6px}
+.missed-week>summary::-webkit-details-marker{display:none}
+.missed-week>summary::before{content:'›';color:#6b8b7f;font:24px/1 var(--label);text-align:center}
+.missed-week[open]>summary::before{transform:rotate(90deg)}
+.missed-week>summary:hover{background:#f3f7f4}
+.missed-week>summary:focus-visible{outline:2px solid #54877d;outline-offset:2px}
+.missed-week[open]>summary{border-bottom:1px solid #d9e1db;border-radius:6px 6px 0 0}
+.missed-week-title{margin:0;font:600 17px/1.4 var(--label);color:#3b5c53}
+.missed-week-count{margin:0;color:#74817b;font:12px/1.5 var(--label)}
+.missed-week .missed-card-grid{padding:16px}
 .missed-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
 .missed-question-card{display:flex;flex-direction:column;min-width:0;border:1px solid #d9dfdb;border-radius:4px;background:#fff;overflow:hidden}
 .missed-question-card:focus-within{outline:2px solid #35766c;outline-offset:2px}
@@ -510,7 +518,10 @@ html[data-theme=dark] .missed-question-card[data-status=ok] .missed-card-status{
 html[data-theme=dark] .missed-question-card .missed-card-open:hover,html[data-theme=dark] .missed-question-card .missed-card-remove:hover{background:#242b29}
 html[data-theme=dark] .missed-card-link{color:#a4c8bd}
 html[data-theme=dark] .missed-terms,html[data-theme=dark] .missed-empty{border-color:#353c42}
-@media(max-width:720px){.missed-card-grid{grid-template-columns:1fr}.missed-week-nav button{min-height:44px}.missed-question-card .missed-card-remove{min-height:44px}.missed-week-title{font-size:16px}.missed-card-title{font-size:18px}}
+html[data-theme=dark] .missed-week{background:#181c1f;border-color:#353c42}
+html[data-theme=dark] .missed-week>summary:hover{background:#242b29}
+html[data-theme=dark] .missed-week[open]>summary{border-bottom-color:#353c42}
+@media(max-width:720px){.missed-card-grid{grid-template-columns:1fr}.missed-week-nav button{min-height:44px}.missed-question-card .missed-card-remove{min-height:44px}.missed-week>summary{grid-template-columns:14px minmax(0,1fr);gap:4px 10px;padding:13px}.missed-week-count{grid-column:2}.missed-week .missed-card-grid{padding:10px}.missed-week-title{font-size:16px}.missed-card-title{font-size:18px}}
 .weak-rows{margin-bottom:6px}
 .weak-rows .kp-acts button:first-child{border-color:#d3dad7;background:#fff;color:inherit}
 html[data-theme=dark] .weak-head{color:#f0964a}
@@ -925,10 +936,33 @@ html[data-theme=dark] .term-tbl td.pic circle{fill:#f0964a}
 #list{flex:0 0 auto;min-height:0;max-height:none;overflow:visible;scrollbar-gutter:auto;margin:12px 0 18px}
 #list .stage-menu{display:block;width:100%;min-height:48px;margin:0 0 8px;padding:10px 8px;border:1px solid #cbd4ce;border-radius:3px;background:#fff;color:#3b4744;font:600 13px/1.5 var(--label);cursor:pointer}
 #list .stage-menu[data-current=true]{border-left:3px solid #bc361c;color:#a6442c}
-#list .stage-menu option{font:16px Georgia,"Times New Roman",serif;color:#363636;background:#fff}
+#list .stage-menu option{font:15px/1.45 var(--label);color:#3b4744;background:#fff}
+.stage-option-mark{color:#6a8378}
+.stage-option-title{margin-left:8px}
 html[data-theme=dark] #list .stage-menu{background:#1b1f23;border-color:#353c42;color:#b9beb9}
 html[data-theme=dark] #list .stage-menu[data-current=true]{border-left-color:#e49a70;color:#e49a70}
 html[data-theme=dark] #list .stage-menu option{background:#1b1f23;color:#ece9e2}
+@supports (appearance:base-select){
+  #list .stage-menu,#list .stage-menu::picker(select){appearance:base-select}
+  #list .stage-menu{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  #list .stage-menu::picker(select){min-width:min(360px,calc(100vw - 32px));max-width:min(520px,calc(100vw - 32px));max-height:min(720px,calc(100dvh - 24px));padding:6px;margin:6px 0;border:1px solid #d5dfd8;border-radius:8px;background:#fff;box-shadow:0 10px 28px #263c3026;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#a7b9b2 transparent}
+  #list .stage-menu::picker-icon{flex:none;color:#72897d;transition:rotate .15s}
+  #list .stage-menu:open::picker-icon{rotate:180deg}
+  #list .stage-menu option{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 12px;border-radius:4px;white-space:normal;cursor:pointer}
+  #list .stage-menu option[hidden]{display:none}
+  #list .stage-menu option::checkmark{display:none}
+  #list .stage-menu option:hover,#list .stage-menu option:focus{background:#f0f5f2;outline:none}
+  #list .stage-menu option[data-current=true]{background:#e7f1ec;color:#285e50;font-weight:600}
+  #list .stage-menu option[data-current=true]::after{content:'Current';margin-left:auto;padding:2px 6px;border-radius:3px;background:#d6e7df;color:#386657;font:11px/1.5 var(--label)}
+  #list .stage-option-mark{flex:0 0 16px;font:15px/1 Arial,sans-serif;text-align:center}
+  #list .stage-option-title{margin:0;min-width:0}
+  #list option[data-mark=ok] .stage-option-mark,#list option[data-mark=fixed] .stage-option-mark{color:#39826e}
+  #list option[data-mark=review] .stage-option-mark{color:#b27648}
+  html[data-theme=dark] #list .stage-menu::picker(select){background:#1b1f23;border-color:#3d4841;box-shadow:0 10px 28px #0006}
+  html[data-theme=dark] #list .stage-menu option:hover,html[data-theme=dark] #list .stage-menu option:focus{background:#27322d}
+  html[data-theme=dark] #list .stage-menu option[data-current=true]{background:#263e33;color:#c1dfd0}
+  html[data-theme=dark] #list .stage-menu option[data-current=true]::after{background:#355346;color:#c1dfd0}
+}
 .revision-note{margin:12px 0;padding:10px 12px;border-left:3px solid #a58b60;background:#f7f2e8;color:#64533d;font:14px/1.5 Arial,sans-serif}
 html[data-theme=dark] .revision-note{background:#24231f;color:#cfc3a9;border-color:#ad9163}
 </style><canvas id="bg" aria-hidden="true"></canvas><header><h1 id="brand" title="Back to all weeks">STAT5002 · Interactive revision</h1><span id="actions"><button id="mockStart">MCQ practice test</button><button type="button" id="openMissed" title="Open your missed questions, grouped by week">Missed questions</button><a id="starTop" class="star-link" href="https://github.com/cryus-2000/stat5002-revision" target="_blank" rel="noopener" title="Open the project on GitHub and give it a star">★ Star</a><button type="button" id="themeQuick" aria-label="Switch between light and dark mode" title="Light or dark mode"><span aria-hidden="true">◐</span></button></span><button id="browse" aria-controls="studyNav" aria-expanded="false">Browse</button></header><main id="studyMain"><aside id="studyNav" aria-label="Study navigation"><label>Lecture<select id="week"></select></label><label>Practice set<select id="kind"></select></label><small id="total"></small><progress id="all" aria-label="Overall progress"></progress><small id="sub"></small><progress id="bar" aria-label="Weekly mastery"></progress><nav id="list" aria-label="Questions"></nav><div id="asideFoot"><small id="save">Progress is saved in this browser.</small><small id="keys">Keyboard: A–D or 1–4 to answer · ← → to move</small><div id="tools"><button type="button" id="autoSave">Autosave to a file</button><button type="button" id="exportProgress">Export progress</button><button type="button" id="importProgress">Import progress</button><button type="button" id="themeToggle">Dark mode</button><button type="button" id="reset">Reset all progress</button></div><input type="file" id="importFile" accept="application/json,.json" hidden><small id="sect">Statistics Section · Terminal 5002</small></div></aside><article id="reading" tabindex="0" aria-label="Revision content"><div id="tabs" role="tablist" aria-label="Week content"><button type="button" id="tabHome" role="tab" aria-controls="home">All weeks</button><button type="button" id="tabOverview" role="tab" aria-controls="lesson">Overview</button><button type="button" id="tabPractice" role="tab">Practice</button><button type="button" id="tabFormulas" role="tab" aria-controls="formulas">Formulas</button><button type="button" id="tabMissed" role="tab" aria-controls="missed">Missed</button></div><section id="home"></section><section id="missed"></section><details id="lesson" open><summary id="lessonTitle">Lecture overview</summary><div id="lessonBody"></div><button type="button" id="startPractice">Start practice</button></details><section id="formulas"><div id="fJump" class="fjump"></div><details class="fsec" id="fWeek" open><summary>Formulas for this week</summary><div id="formulaBody"></div></details><details class="fsec" id="fChooser"><summary>Choosing a test · flowchart</summary><div id="chooser"></div></details><div id="refs"></div><button type="button" id="printFormulas">Print the formulas for all 15 weeks</button></section><small id="meta"></small><h2 id="title"></h2><div id="q"></div><div id="draft"></div><div id="choices"></div><section id="why" aria-live="polite" hidden></section><div id="opts"></div><p id="status" role="status"></p><textarea id="fallback" readonly hidden aria-label="Question for chat"></textarea><div id="pager"><button id="prev">Previous</button><span id="pagerPos"></span><button id="next">Next</button></div></article></main><div id="printArea"></div><dialog id="lab" aria-label="Lab console"><pre id="labLog"></pre><p id="labNote">Visual style: an unofficial fan homage to the Rhine Lab look from Arknights. No game assets are used.</p><button type="button" id="labClose">Close terminal</button></dialog><dialog id="mock" aria-labelledby="mockTitle"><button id="mockClose">Close</button><small id="mockMeta"></small><small id="mockTime"></small><div id="mockGrid" role="group" aria-label="Jump to a question"></div><section id="mockSummary" hidden></section><h2 id="mockTitle"></h2><p id="mockStem"></p><div id="mockChoices"></div><section id="mockFeedback" aria-live="polite" hidden></section><div id="mockControls"></div></dialog>
@@ -1033,6 +1067,7 @@ function formatText(el,value){
 
 function btn(parent,text,fn){const b=document.createElement('button');formatText(b,text);b.onclick=fn;parent.append(b);return b}
 let blindId=null,missedReturnId=null;
+const missedWeeksOpen=new Set();
 function missed(){return deck.filter(c=>state.marks[c.id]==='review')}
 // Learning stages follow prerequisites and reasoning load; question format does not determine difficulty.
 const stageLabels={foundation:'1 · Foundations',application:'2 · Apply the ideas',synthesis:'3 · Combine the ideas',written:'4 · Written cases',optional:'Optional · Further practice'};
@@ -1616,11 +1651,12 @@ for(const [stage,cards] of stages){
   const checked=cards.filter(c=>state.marks[c.id]==='ok').length;
   menu.className='stage-menu';menu.dataset.stage=stage;menu.dataset.current=String(cards.some(c=>c.id===state.id));
   menu.setAttribute('aria-label',stageLabels[stage]+' — choose a question');
-  heading.textContent=stageLabels[stage]+' · '+checked+'/'+cards.length;heading.value='';heading.disabled=true;heading.selected=true;menu.append(heading);
+  heading.textContent=stageLabels[stage]+' · '+checked+'/'+cards.length;heading.value='';heading.disabled=true;heading.selected=true;heading.hidden=true;menu.append(heading);
   for(const c of cards){
     const option=document.createElement('option'),lost=state.missed[c.id]||0,mark=state.marks[c.id];
-    const status=mark==='ok'?(lost?'✓ Corrected · ':'✓ '):mark==='review'?'↻ To review · ':'';
-    option.value=String(c.id);option.textContent=(c.id===state.id?'→ ':'')+status+c.t.replace(/`|\*\*/g,'');menu.append(option);
+    const title=c.t.replace(/`|\*\*/g,''),status=mark==='ok'?(lost?'Corrected':'Answered correctly'):mark==='review'?'To review':'Not yet answered';
+    const icon=document.createElement('span'),name=document.createElement('span');icon.className='stage-option-mark';icon.textContent=(c.id===state.id?'→':mark==='ok'?'✓':mark==='review'?'↻':'·')+' ';icon.setAttribute('aria-hidden','true');name.className='stage-option-title';name.textContent=title;
+    option.value=String(c.id);option.dataset.mark=mark==='ok'&&lost?'fixed':mark||'';option.dataset.current=String(c.id===state.id);option.setAttribute('aria-label',title+' — '+status+(c.id===state.id?' — current question':''));option.append(icon,name);menu.append(option);
   }
   menu.onchange=()=>{const card=cards.find(c=>String(c.id)===menu.value);if(card){go(card.id);$('reading').focus()}};
   $('list').append(menu);
@@ -1778,16 +1814,17 @@ function renderMissed(){
   const log=everMissed(),open=log.filter(c=>state.marks[c.id]==='review').length;
   const head=make('h3','missed-head','Missed questions');head.append(make('span','',log.length?log.length+' recorded · '+(open?open+' to review':'all corrected'):'none yet'));box.append(head);
   if(!log.length){box.append(make('p','missed-empty','No missed questions yet. Questions you get wrong will appear here, grouped by week.'));return}
-  box.append(make('p','missed-hint','Choose a week, then open a card to return to that question. Corrected questions stay here until you mark them as learned.'));
+  box.append(make('p','missed-hint','Expand a week to see its cards, then choose a question. Corrected questions stay here until you mark them as learned.'));
   if(log.length){const all=make('button','missed-retry',open?'Retry the '+(open===1?'one':open)+' still to review':'Retry corrected questions');all.type='button';all.onclick=retryMissedQuestion;box.append(all)}
   const jump=make('nav','missed-week-nav');jump.setAttribute('aria-label','Jump to a week');box.append(jump);
   for(let w=1;w<=15;w++){
     const cards=log.filter(c=>c.w===w);if(!cards.length)continue;
-    const section=make('section','missed-week');section.id='missed-week-'+w;section.dataset.week=String(w);section.setAttribute('tabindex','-1');
-    const heading=make('h4','missed-week-title','Week '+w+' · '+names[w-1]);heading.id=section.id+'-title';section.setAttribute('aria-labelledby',heading.id);
+    const section=make('details','missed-week'),summary=make('summary','');section.id='missed-week-'+w;section.dataset.week=String(w);section.open=missedWeeksOpen.has(w);
+    section.ontoggle=()=>{if(section.isConnected===false)return;if(section.open)missedWeeksOpen.add(w);else missedWeeksOpen.delete(w)};
+    const heading=make('span','missed-week-title','Week '+w+' · '+names[w-1]);heading.id=section.id+'-title';section.setAttribute('aria-labelledby',heading.id);
     const pending=cards.filter(c=>state.marks[c.id]==='review').length;
-    section.append(heading,make('p','missed-week-count',cards.length+(cards.length===1?' question':' questions')+' · '+pending+' to review'));
-    const shortcut=make('button','','W'+w+' · '+cards.length);shortcut.type='button';shortcut.setAttribute('aria-label','Week '+w+', '+cards.length+' recorded questions');shortcut.onclick=()=>{section.style.scrollMarginTop=($('tabs').getBoundingClientRect().height+18)+'px';section.scrollIntoView({block:'start'});section.focus({preventScroll:true})};jump.append(shortcut);
+    summary.append(heading,make('span','missed-week-count',cards.length+(cards.length===1?' question':' questions')+' · '+pending+' to review'));section.append(summary);
+    const shortcut=make('button','','W'+w+' · '+cards.length);shortcut.type='button';shortcut.setAttribute('aria-label','Week '+w+', '+cards.length+' recorded questions');shortcut.onclick=()=>{section.open=true;missedWeeksOpen.add(w);section.style.scrollMarginTop=($('tabs').getBoundingClientRect().height+18)+'px';section.scrollIntoView({block:'start'});summary.focus({preventScroll:true})};jump.append(shortcut);
     const grid=make('ul','missed-card-grid');
     for(const c of cards){
       const item=make('li','missed-question-card'),done=state.marks[c.id]==='ok';item.dataset.id=String(c.id);item.dataset.status=done?'ok':'review';
@@ -1798,7 +1835,7 @@ function renderMissed(){
       button.append(meta,title,preview,make('span','missed-card-link','Open question →'));
       button.onclick=()=>{missedReturnId=c.id;state.week=c.w;state.group='All questions';go(c.id);$('reading').focus()};
       const remove=make('button','missed-card-remove','✓ Learned');remove.type='button';remove.title='Remove this question from your missed list';remove.setAttribute('aria-label','Mark '+c.t+' as learned and remove it from the missed questions');
-      remove.onclick=()=>{if(missedReturnId===c.id)missedReturnId=null;learned(c.id);renderMissed();(document.getElementById('missed-week-'+c.w)||$('reading')).focus?.({preventScroll:true})};
+      remove.onclick=()=>{if(missedReturnId===c.id)missedReturnId=null;learned(c.id);renderMissed();(document.getElementById('missed-week-'+c.w)?.querySelector?.('summary')||$('reading')).focus?.({preventScroll:true})};
       item.append(button,remove);grid.append(item);
     }
     section.append(grid);box.append(section);
@@ -1825,6 +1862,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['13 Nov 2026 · Foldable weeks and clearer menus', ['Expand or collapse each week in the missed notebook. Week shortcuts open its cards, and returning from a question restores its week and position.', 'Question dropdowns use clearer spacing, compact status icons and a highlighted current question.']],
 ['13 Nov 2026 · Full question dropdowns', ['Each stage now opens a full dropdown of its questions instead of a small scrolling panel. Stage names and progress stay visible in the sidebar.', 'The top Missed questions button and the Missed tab open the same notebook. Start a blind retry from inside the notebook.']],
 ['13 Nov 2026 · Missed questions by week', ['The Missed page groups recorded questions by week, with a card for each question. Open a card to return to the original question; coming back restores your place.', 'Cards show review status and missed counts. Mark a question as learned to remove it, or retry the questions still to review. Key-term definitions, tables and diagrams are available in the expandable section below.']],
 ['13 Nov 2026 · Complete key-term explanations', ['Restored supporting tables and diagrams in missed-question explanations and Key terms to reread. Definitions now show the same complete material as the weekly overview.']],
@@ -1910,7 +1948,7 @@ function applyView(){
 }
 function setView(view){
  state.view=view;save();applyView();$('reading').scrollTop=0;
- if(view==='missed'&&missedReturnId!==null){const card=[...($('missed').querySelectorAll?.('.missed-card-open')||[])].find(b=>b.dataset.id===String(missedReturnId));if(card){card.scrollIntoView?.({block:'center'});card.focus?.({preventScroll:true})}}
+ if(view==='missed'&&missedReturnId!==null){const card=[...($('missed').querySelectorAll?.('.missed-card-open')||[])].find(b=>b.dataset.id===String(missedReturnId));if(card){const week=card.closest('.missed-week');week.open=true;missedWeeksOpen.add(Number(week.dataset.week));card.scrollIntoView?.({block:'center'});card.focus?.({preventScroll:true})}}
 }
 $('tabHome').onclick=()=>setView('home');$('refs').innerHTML=references;buildChooser();setUpFormulaSections();$('tabOverview').onclick=()=>setView('overview');$('tabPractice').onclick=()=>setView('practice');$('tabFormulas').onclick=()=>setView('formulas');$('tabMissed').onclick=()=>setView('missed');$('startPractice').onclick=()=>setView('practice');
 $('printFormulas').onclick=()=>{
