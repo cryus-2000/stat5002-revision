@@ -38,6 +38,7 @@ Keyboard: `A`–`D` or `1`–`4` to answer, `←` and `→` to move between ques
 
 Progress is stored in your own browser (`localStorage`), and there is no account. Your answers and progress are never sent anywhere. The only network request the page makes is to GitHub's public API, to show how many stars this repository has; offline, the count is simply left out. Progress does not follow you to another browser or device on its own.
 
+- **Autosave to a file** (Chrome or Edge on a computer) writes your progress to a file of your choice after every answer, so it survives if the browser clears its site data. Next time, click **Resume autosave**; if the browser has lost your answers, the page offers to load them from the file.
 - **Export progress** saves a file, `stat5002-progress.json`. **Import progress** on another device or browser loads it.
 - **Reset all progress** clears everything, as does clearing the site's data in your browser.
 - **Dark mode** is remembered separately on each device.
