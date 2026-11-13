@@ -1552,7 +1552,8 @@ for(const [stage,cards] of stages){
   count.className='stage-count';count.textContent=checked+' / '+cards.length;count.title='Correct or self-checked / questions';
   summary.append(label,count);summary.dataset.current=String(current);
   body.className='nav-items';group.append(summary,body);$('list').append(group);
-  group.ontoggle=()=>{if(group.isConnected===false)return;pinNavStages();if(state.navOpen[storageKey]!==group.open){state.navOpen[storageKey]=group.open;save()}};
+  summary.onclick=()=>{summary.dataset.reveal=String(!group.open)};
+  group.ontoggle=()=>{if(group.isConnected===false)return;pinNavStages();if(group.open&&summary.dataset.reveal==='true'){const list=$('list');list.scrollTop+=group.getBoundingClientRect().top-list.getBoundingClientRect().top}summary.dataset.reveal='false';if(state.navOpen[storageKey]!==group.open){state.navOpen[storageKey]=group.open;save()}};
   let lastCase=null;
   for(const c of cards){
     const split=/^(Extended-answer practice|Exam case studies)$/.test(c.g)?String(c.t).match(/^(.*) (\d+) · (.*)$/):null;
