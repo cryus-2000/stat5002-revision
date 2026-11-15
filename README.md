@@ -51,6 +51,7 @@ The whole site is one file. Download `index.html` and open it in a current brows
 
 ## About the content
 
+- Week 8 follows a single sample through point estimation, SE, prediction intervals, Wilson confidence intervals and coverage, then connects mean intervals to margin of error and sample size. Weeks 9–15 introduce prerequisites before dependent formulas and distinguish assumptions from conclusions.
 - This is an unofficial study aid. It is not produced or endorsed by any university or teaching team.
 - All questions, explanations and figures were written for this page. It contains no lecture slides, official exam papers or official solutions.
 - Numerical answers and the R output shown in questions were computed in R.
