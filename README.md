@@ -17,7 +17,7 @@ It is written so that someone who missed a lecture can still follow each questio
 | Which-test flowchart | 12 tests | On the Formulas tab. Follow the branches from the kind of data (counts, measurements, a fitted model) to the test. Every branch has an example, and selecting a test shows its null hypothesis, statistic, a worked example and the R call |
 | Weekly practice | 309 questions | Each week follows a reviewed learning order: **Foundations → Apply the ideas → Combine the ideas → Written cases**, with optional work last. Multiple-choice, true/false and matching questions give immediate feedback |
 | Learning stages | 45 foundations, 122 application, 84 synthesis questions | Start with direct concepts and familiar output, then practise methods and finally combine ideas. Question format does not determine difficulty. The 24 cross-week questions are part of these stages; the menu can also show only those. Three additional questions are optional |
-| Written-answer cases | 11 cases, 55 parts | Write and save a draft for every part, then **Submit whole case** to reveal all reference answers. A note of uncertainty counts as an attempt. Compare the working and self-check each part; the page does not automatically grade prose |
+| Written-answer cases | 11 cases, 55 parts | Default **Study mode** lets you attempt and check one part at a time. **Exam mode** reveals answers only after the whole case is attempted and submitted. Drafts save automatically; previously viewed answers are labelled. Compare your working and self-check each part; prose is not graded automatically |
 | MCQ practice test | 16 questions in 48 minutes | Drawn from a pool of 229, at least one from every week, marked only after you submit. This tests multiple choice, not the written-answer portion of a full exam |
 | Missed questions | Expandable week groups | Open a week to see its question cards, review status and missed counts. Week shortcuts expand the matching group; supporting definitions, tables and diagrams remain available below |
 
@@ -66,7 +66,7 @@ The whole site is one file. Download `index.html` and open it in a current brows
 - 首页是 15 周总览，显示每周进度和正确率。概览里有 8 个可以自己拖动的小演示（中心极限定理、置信区间覆盖率、t 分布与正态分布的对比等）。公式页里有一张"该用哪个检验"的流程图，从数据类型一路分支到 12 个检验，点开任一检验可以看到原假设、公式、算例和 R 写法。每周有概览、图示、术语解释和一到两道完整例题；公式表在单独的标签页里，下方附"什么情况用什么检验"和"R 输出怎么读"两张通用表，可一键打印。
 - 共 309 题。每周按“基础 → 应用 → 综合 → 整组书面题”排列，选学题放最后；基础 45 题、应用 122 题、综合 84 题、选学 3 题，另有 55 个书面小问。按实际推理及前置知识复查排序，直接读取和应用在前，综合判断在后。
 - 左侧每个阶段使用真正的下拉选择框：点击后展开完整题目列表，选择后直接跳题，不再把题目挤在侧栏的小滚动框里。各阶段入口保留名称和进度；菜单统一字体、留白和状态图标，当前题高亮。
-- 11 组书面题（55 小问）必须整组尝试并提交后才显示参考答案；草稿自动保存。提交后按参考写法自评，不再以选对选项代替书面能力。不会的小问可以写下尝试或疑问。
+- 11 组书面题（55 小问）默认逐问尝试、逐问检查；可切换考试模式，整组完成后才揭晓。草稿自动保存，看过参考答案会有提示。按参考写法自行评估，不会的小问可以写下尝试或疑问。
 - 书面题要求自己定义参数、建式、解释及下结论；保留必要 R 输出，移除提前透露前面答案的计算提示。综合题减少不必要的反推、枚举和繁琐运算。修订题保留旧答案和草稿，并提示按当前题面复查。
 - 选择题模拟从 229 题的题池随机抽 16 题，限时 48 分钟；它不包含整场考试的书面部分。24 道跨周题保留，题目 ID 不变，已有进度继续使用。
 - 进度只保存在你自己的浏览器里，答题记录不会上传；页面唯一的联网请求是向 GitHub 公开接口读取本仓库的 star 数；可以导出成文件，在另一台设备上导入。

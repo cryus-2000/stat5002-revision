@@ -648,6 +648,7 @@ html[data-theme=dark] .home-tools button,html[data-theme=dark] .home-tools butto
 /* Failsafe: nothing may stay hidden because an animation never started. Animations are off until the page has shown that frames are being drawn. */
 html:not(.motion) *,html:not(.motion) *::before,html:not(.motion) *::after{animation:none!important}
 
+.written-modes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}#draft .written-modes button{background:transparent;color:inherit;border:1px solid #829d96;font-size:14px}#draft .written-modes button[aria-pressed=true]{background:#2e7469;color:#fff;border-color:#2e7469}html[data-theme=dark] #draft .written-modes button[aria-pressed=true]{background:#f0964a;color:#151515}
 /* interactive demos in the overviews */
 .demo{margin:22px 0 0;padding:14px 16px 12px;border:1px solid #dfe2dd;border-left:3px solid var(--ink);background:#fbfbf9}
 .demo h3{margin:0 0 4px;font:600 12.5px var(--label);letter-spacing:.1em;text-transform:uppercase;color:#7a5a4c}
@@ -987,6 +988,7 @@ function showRevisionNotice(c){
  $('q').append(note);
 }
 state.caseSubmitted=validCaseSubmissions(state.caseSubmitted,state.drafts);
+restoreWrittenMode(state);
 if(!state.missed||typeof state.missed!=='object')state.missed={};for(const id in state.marks)if(state.marks[id]==='review'&&!state.missed[id])state.missed[id]=1;
 // Autosave state. var, not let: save() runs while the page is still loading.
 var saveHandle=null,pendingHandle=null,saveTimer=null,saveBusy=false;
@@ -1082,17 +1084,45 @@ function writtenReady(c){return writtenParts(c).every(p=>typeof state.drafts?.[p
 function validCaseSubmissions(value,drafts){
   return Object.fromEntries(Object.entries(value||{}).filter(([key,v])=>v===true&&deck.some(c=>writtenKey(c)===key)&&deck.filter(c=>writtenKey(c)===key).every(c=>typeof drafts?.[c.id]==='string'&&drafts[c.id].trim())));
 }
+function validWrittenFlags(value,drafts,requireDraft=false){
+ return Object.fromEntries(Object.entries(value||{}).filter(([id,v])=>v===true&&deck.some(c=>String(c.id)===id&&writtenKey(c))&&(!requireDraft||drafts?.[id]?.trim())));
+}
+function restoreWrittenMode(incoming){
+ state.writtenMode=incoming.writtenMode==='exam'?'exam':'learning';
+ state.partChecked=validWrittenFlags(incoming.partChecked,state.drafts,true);
+ state.writtenSeen=validWrittenFlags(incoming.writtenSeen,state.drafts);
+ for(const c of deck)if(writtenKey(c)&&(state.partChecked[c.id]||state.caseSubmitted[writtenKey(c)]))state.writtenSeen[c.id]=true;
+}
+function writtenRevealed(c){return state.caseSubmitted[writtenKey(c)]===true||(state.writtenMode==='learning'&&state.partChecked[c.id]===true)}
+function checkWrittenPart(c){
+ if(state.writtenMode!=='learning'||!writtenKey(c)||!state.drafts[c.id]?.trim()){$('status').textContent='Write your attempt first, or note what you are unsure about.';return false}
+ state.partChecked[c.id]=true;state.writtenSeen[c.id]=true;blindId=null;save();render();return true;
+}
+function hideWrittenCase(c){delete state.caseSubmitted[writtenKey(c)];for(const p of writtenParts(c))delete state.partChecked[p.id]}
+function setWrittenMode(mode,c){
+ if(!['learning','exam'].includes(mode)||mode===state.writtenMode)return;
+ state.writtenMode=mode;if(mode==='exam')delete state.caseSubmitted[writtenKey(c)];blindId=null;save();render();
+}
+function reviseWrittenPart(c){
+ if(state.caseSubmitted[writtenKey(c)]){for(const p of writtenParts(c))state.partChecked[p.id]=true;delete state.caseSubmitted[writtenKey(c)]}
+ delete state.partChecked[c.id];blindId=c.id;save();render();
+}
 function submitWrittenCase(c){
   if(!writtenKey(c)||!writtenReady(c)){$('status').textContent='Attempt every part before submitting. If unsure, write what you tried or what you do not know yet.';return false}
-  state.caseSubmitted[writtenKey(c)]=true;blindId=null;save();render();return true;
+  state.caseSubmitted[writtenKey(c)]=true;for(const p of writtenParts(c))state.writtenSeen[p.id]=true;blindId=null;save();render();return true;
 }
 function renderWrittenCase(c){
-  const parts=writtenParts(c),key=writtenKey(c),index=parts.findIndex(p=>p.id===c.id),submitted=state.caseSubmitted[key]===true;
+  const parts=writtenParts(c),key=writtenKey(c),index=parts.findIndex(p=>p.id===c.id),exam=state.writtenMode==='exam',submitted=writtenRevealed(c);
   state.drafts=state.drafts||{};
   $('choices').replaceChildren();$('choices').hidden=true;$('draft').replaceChildren();
   const el=(tag,text)=>{const e=document.createElement(tag);e.textContent=text;return e};
-  const progress=el('p','');progress.className='case-progress';
-  const prompt=el('p',submitted?'Compare your own working with the reference answer below. Your written answer is not marked automatically.':'Work through the whole case before seeing any answers. Write your working, or note what you are unsure about. Drafts save automatically.');
+  const modes=el('div','');modes.className='written-modes';modes.setAttribute('role','group');modes.setAttribute('aria-label','Written practice mode');
+ for(const [mode,label]of [['learning','Study mode · check each part'],['exam','Exam mode · submit whole case']]){const b=btn(modes,label,()=>setWrittenMode(mode,c));b.setAttribute('aria-pressed',String(state.writtenMode===mode))}
+ $('draft').append(modes);
+ const seen=parts.some(p=>state.writtenSeen[p.id]),earlier=parts.slice(0,index).some(p=>state.writtenSeen[p.id]);
+ if(seen){const note=el('p',exam?'Reference answers have been viewed for this case. This is practice, not an independent exam attempt.':earlier?'Earlier reference answers have been viewed. You may use them to work through this part.':'A reference answer has been viewed in this case. Your progress remains a self-assessment.');note.className='draft-prompt';$('draft').append(note)}
+ const progress=el('p','');progress.className='case-progress';
+  const prompt=el('p',submitted?'Compare your own working with the reference answer below. Your written answer is not marked automatically.':exam?'Work through the whole case before seeing any answers. Drafts save automatically.':'Write your working, then check this part. Only its reference answer will open. If unsure, note what you tried. Drafts save automatically.');
   prompt.className='draft-prompt';
   const area=document.createElement('textarea');area.rows=6;area.value=state.drafts[c.id]||'';area.readOnly=submitted;area.setAttribute('aria-label','Your written answer for part '+(index+1));
   $('draft').append(progress,prompt,area);
@@ -1100,16 +1130,16 @@ function renderWrittenCase(c){
   const back=btn($('draft'),'Previous part',()=>move(parts[index-1]));back.disabled=index===0;
   const next=btn($('draft'),'Next part',()=>move(parts[index+1]));next.disabled=index===parts.length-1;
   let submit;
-  const refresh=()=>{const count=parts.filter(p=>state.drafts[p.id]?.trim()).length;progress.textContent='Part '+(index+1)+' of '+parts.length+' · '+count+' attempted'+(submitted?' · Case submitted':'');if(submit)submit.disabled=!writtenReady(c)};
+  const refresh=()=>{const count=parts.filter(p=>state.drafts[p.id]?.trim()).length;progress.textContent='Part '+(index+1)+' of '+parts.length+' · '+count+' attempted'+(submitted?(exam?' · Case submitted':' · Part checked'):'');if(submit)submit.disabled=exam?!writtenReady(c):!state.drafts[c.id]?.trim()};
   if(!submitted){
-    submit=btn($('draft'),'Submit whole case',()=>submitWrittenCase(c));
+    submit=btn($('draft'),exam?'Submit whole case':'Check this part',()=>exam?submitWrittenCase(c):checkWrittenPart(c));
     submit.className='case-submit';
     area.oninput=()=>{state.drafts[c.id]=area.value;stampRevision(c);refresh();save()};
   }else{
     const assess=ok=>{stampRevision(c);state.marks[c.id]=ok?'ok':'review';if(!ok)state.missed[c.id]=(state.missed[c.id]||0)+1;save();nav();$('status').textContent=ok?'Self-check saved: your answer meets the key points.':'Saved to Missed questions for review.'};
     btn($('draft'),'My answer meets the key points',()=>assess(true));
     btn($('draft'),'I need to review this part',()=>assess(false));
-    btn($('draft'),'Revise this case',()=>{delete state.caseSubmitted[key];blindId=c.id;save();render()});
+    btn($('draft'),exam?'Revise this case':'Revise this part',()=>{if(exam){hideWrittenCase(c);blindId=c.id;save();render()}else reviseWrittenPart(c)});
     $('why').hidden=false;$('why').dataset.result='';
     $('why').append(el('strong','Reference answer · self-check'));
     const model=document.createElement('p');formatText(model,c.model||c.answer);$('why').append(model);
@@ -1121,7 +1151,7 @@ function renderWrittenCase(c){
   }
   refresh();
   btn($('opts'),'Copy question for chat',async()=>{
-    const context=['Tutor me in English on STAT5002, Week '+c.w+': '+c.t,c.bg,c.bgr,c.q,c.r,'My written answer: '+(state.drafts[c.id]||'not attempted'),submitted?'Reference answer: '+(c.model||c.answer)+' '+c.why:'I have not submitted the whole case. Give me a hint without revealing the answer.'].filter(Boolean).join('\n');
+    const context=['Tutor me in English on STAT5002, Week '+c.w+': '+c.t,c.bg,c.bgr,c.q,c.r,'My written answer: '+(state.drafts[c.id]||'not attempted'),submitted?'Reference answer: '+(c.model||c.answer)+' '+c.why:'I have not checked this part. Give me a hint without revealing the answer.'].filter(Boolean).join('\n');
     try{await navigator.clipboard.writeText(context);$('status').textContent='Copied.'}catch{$('fallback').hidden=false;$('fallback').value=context;$('fallback').select();$('status').textContent='Copy the selected text.'}
   });
 }
@@ -1150,7 +1180,7 @@ function setMenu(open){
 }
 $("browse").onclick=()=>setMenu($("studyMain").className!=="menu-open");
 $("studyNav").onkeydown=e=>{if(e.key==="Escape"){setMenu(false);$("browse").focus()}};
-function go(id,blind=false){const c=deck.find(c=>c.id===id);if(c)state.navOpen[c.w+':'+c.stage]=true;if((blind||state.group==='Review again')&&writtenKey(c))delete state.caseSubmitted[writtenKey(c)];state.view='practice';blindId=blind||state.group==='Review again'?id:null;const wasOpen=$("studyMain").className==="menu-open";setMenu(false);$("reading").scrollTop=0;if(wasOpen)$("reading").focus();if(state.id!==id&&$("lesson").dataset.week===String(state.week))$("lesson").open=false;state.id=id;save();render()}
+function go(id,blind=false){const c=deck.find(c=>c.id===id);if(c)state.navOpen[c.w+':'+c.stage]=true;if((blind||state.group==='Review again')&&writtenKey(c))hideWrittenCase(c);state.view='practice';blindId=blind||state.group==='Review again'?id:null;const wasOpen=$("studyMain").className==="menu-open";setMenu(false);$("reading").scrollTop=0;if(wasOpen)$("reading").focus();if(state.id!==id&&$("lesson").dataset.week===String(state.week))$("lesson").open=false;state.id=id;save();render()}
 // What each practice set is called on the page. The stored values stay as they were, so saved progress still loads.
 const setLabels={...stageLabels,'All questions':'Learning order · All questions','Concepts':'Warm-up · Concept checks','Calculations':'Warm-up · Quick calculations','Exam-style extensions':'Exam level · Applied problems','Exam-format questions':'Exam-style multiple choice','Cross-week':'Exam level · Cross-week only','Extended-answer practice':'Written-answer cases','Review again':'Missed questions'};
 
@@ -1844,7 +1874,7 @@ function renderMissed(){
   }
   // weak spots: the key terms that the missed questions point to, the most frequent first
   const by=new Map();
-  for(const c of log.filter(c=>!writtenKey(c)||state.caseSubmitted[writtenKey(c)]))for(const [w,name] of c.kp?.t||[]){const k=w+'|'+name;if(!by.has(k))by.set(k,{k,w,name,items:[]});by.get(k).items.push(c)}
+  for(const c of log.filter(c=>!writtenKey(c)||writtenRevealed(c)))for(const [w,name] of c.kp?.t||[]){const k=w+'|'+name;if(!by.has(k))by.set(k,{k,w,name,items:[]});by.get(k).items.push(c)}
   const weak=[...by.values()].filter(x=>guides[x.w-1]?.terms.some(t=>t[0]===x.name)).sort((a,b)=>b.items.length-a.items.length||a.w-b.w);
   if(weak.length){
     const terms=make('details','missed-terms'),summary=make('summary','','Key terms to reread · '+weak.length);terms.append(summary,make('p','missed-hint','Definitions, tables and diagrams for your recorded questions.'));
@@ -1864,6 +1894,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['15 Nov 2026 · Written practice modes', ['Study mode checks one written part at a time. Exam mode keeps reference answers hidden until the whole case is attempted and submitted. Drafts and self-check progress are retained, and previously viewed reference answers are labelled.']],
 ['15 Nov 2026 · Clearer formula layout', ['Proportion SEs and related formulas now use complete radicals and stacked fractions. The main Week 8 equations have their own display lines. Question wording, R code and saved answers are unchanged.']],
 ['15 Nov 2026 · Connected weekly summaries', ['Week 8 now follows one sample from point estimate and SE through prediction, Wilson confidence intervals and coverage, then explains precision and sample size for a mean. Weeks 9–15 put prerequisites before formulas and clarify assumptions and interpretations. No exercises or saved progress were changed.']],
 ['13 Nov 2026 · Week 7 prerequisites', ['Added a worked explanation of the mean and SD of a two-value box. Coin simulation options now distinguish observed errors from variability across repeated simulations. Existing answers and progress are retained.']],
@@ -2209,7 +2240,7 @@ async function importText(text,question){
   const drafts=Object.fromEntries(Object.entries(incoming.drafts||{}).filter(([id,v])=>known.has(id)&&typeof v==='string'));
   if(window.confirm(question||'Replace the progress in this browser with the imported file ('+Object.keys(marks).length+' answered questions)?')){done=true;
    state.missed=Object.fromEntries(Object.entries(incoming.missed||{}).filter(([id,v])=>known.has(id)&&Number.isInteger(v)&&v>0));for(const id in marks)if(marks[id]==='review'&&!state.missed[id])state.missed[id]=1;
-   migrateResponses(responses);state.marks=marks;state.responses=responses;state.drafts=drafts;state.caseSubmitted=validCaseSubmissions(incoming.caseSubmitted,drafts);state.navOpen=validNavOpen(incoming.navOpen);state.revisionSeen=validRevisionSeen(incoming.revisionSeen);const mock=validMock(incoming.mock);if(mock)state.mock=mock;else delete state.mock;blindId=null;
+   migrateResponses(responses);state.marks=marks;state.responses=responses;state.drafts=drafts;state.caseSubmitted=validCaseSubmissions(incoming.caseSubmitted,drafts);restoreWrittenMode(incoming);state.navOpen=validNavOpen(incoming.navOpen);state.revisionSeen=validRevisionSeen(incoming.revisionSeen);const mock=validMock(incoming.mock);if(mock)state.mock=mock;else delete state.mock;blindId=null;
    if(Number.isInteger(incoming.week)&&incoming.week>=1&&incoming.week<=15)state.week=incoming.week;
    state.group='All questions';save();render();$('save').textContent='Progress imported.';
   }
@@ -2257,7 +2288,7 @@ applyTheme();
 $('themeQuick').onclick=()=>{$('themeToggle').click();if(state.view==='home')renderHome()};
 $('reset').onclick=()=>{
  if(!window.confirm('Clear every saved answer, the record of missed questions and the practice exam result in this browser?'))return;
- state.marks={};state.responses={};state.drafts={};state.missed={};state.caseSubmitted={};state.navOpen={};state.revisionSeen={};delete state.mock;blindId=null;save();render();
+ state.marks={};state.responses={};state.drafts={};state.missed={};state.caseSubmitted={};state.partChecked={};state.writtenSeen={};state.writtenMode="learning";state.navOpen={};state.revisionSeen={};delete state.mock;blindId=null;save();render();
 };
 document.addEventListener?.('keydown',e=>{
  if(e.ctrlKey||e.metaKey||e.altKey||/^(SELECT|TEXTAREA|INPUT)$/.test(e.target.tagName))return;
