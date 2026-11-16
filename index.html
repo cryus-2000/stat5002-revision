@@ -650,6 +650,19 @@ html:not(.motion) *,html:not(.motion) *::before,html:not(.motion) *::after{anima
 
 .written-modes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}#draft .written-modes button{background:transparent;color:inherit;border:1px solid #829d96;font-size:14px}#draft .written-modes button[aria-pressed=true]{background:#2e7469;color:#fff;border-color:#2e7469}html[data-theme=dark] #draft .written-modes button[aria-pressed=true]{background:#f0964a;color:#151515}
 .written-solution .solution-math{overflow-x:auto;padding:8px 0;margin:5px 0}.written-solution .solution-text{margin:10px 0}.solution-details{margin-top:16px;font-size:.94em}.solution-details summary{cursor:pointer;color:#52756a}html[data-theme=dark] .solution-details summary{color:#a4c8bd}
+.bootstrap-demo .bootstrap-original-stats,.bootstrap-demo .bootstrap-observed{margin:10px 0;font-size:.93em;line-height:1.6}
+.bootstrap-box{margin:14px 0 8px}.bootstrap-label{margin:0 0 7px;font:600 12px var(--label);color:#526d64;letter-spacing:.025em}
+.bootstrap-tickets{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.bootstrap-ticket{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;padding:5px 2px;border:1px solid #bfcfc7;border-radius:4px;background:#f0f6f3;color:#284e44;line-height:1.2}.bootstrap-id{font:10px var(--label);color:#61756e;margin-bottom:4px}.bootstrap-ticket strong{font-size:20px;font-variant-numeric:tabular-nums}.bootstrap-ticket.picked{border:2px solid #b74d2d;background:#fff0e7;padding:4px 1px}.bootstrap-ticket.empty{background:transparent;border-style:dashed;color:#9baca5}.bootstrap-ticket.latest{animation:bootstrap-arrive .2s ease-out}.bootstrap-status{font-size:.87em;line-height:1.5;min-height:2.7em;margin:8px 0;color:#526b62}
+.bootstrap-formula{margin:14px 0 8px}.bootstrap-calculation{border-left:2px solid #acc8bc;padding-left:12px;min-height:64px;font-size:.93em;line-height:1.7}.bootstrap-calculation p{margin:5px 0}.bootstrap-note,.bootstrap-key{font-size:.86em;line-height:1.55;margin:8px 0 14px}.bootstrap-estimate{font-size:.95em;font-weight:600;line-height:1.55;margin:8px 0}.bootstrap-demo .demo-controls{gap:8px;margin-top:8px}.bootstrap-demo .ctl{flex-basis:100%;max-width:330px;margin-top:5px}.bootstrap-bar{fill:#76a99a}.bootstrap-tail{fill:#bc5b37}.bootstrap-cutoff{stroke:#9e492e;stroke-width:1.5;stroke-dasharray:5 4}.bootstrap-chart .chart{width:100%;height:auto}.bootstrap-demo math{font-size:1em}
+@keyframes bootstrap-arrive{from{opacity:.45;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+html[data-theme=dark] .bootstrap-label,html[data-theme=dark] .bootstrap-status{color:#aac8bb}html[data-theme=dark] .bootstrap-ticket{background:#243b34;border-color:#557b6a;color:#d9e9e1}html[data-theme=dark] .bootstrap-id{color:#afc6bc}html[data-theme=dark] .bootstrap-ticket.picked{background:#503c29;border-color:#f0964a}html[data-theme=dark] .bootstrap-ticket.empty{background:transparent}html[data-theme=dark] .bootstrap-tail{fill:#f0964a}html[data-theme=dark] .bootstrap-cutoff{stroke:#f0964a}
+@media(max-width:600px){.bootstrap-tickets{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.bootstrap-ticket{min-height:49px}.bootstrap-demo .demo-btn{flex:1 1 42%;padding:9px 7px}.bootstrap-demo .demo-controls{gap:6px}.bootstrap-demo .bootstrap-calculation math{font-size:.93em}}
+@media(prefers-reduced-motion:reduce){.bootstrap-ticket.latest{animation:none}}
+
+.qq-plots{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:12px}.qq-plots>div{min-width:0}.qq-plots .chart{width:100%;height:auto}.qq-bin{fill:#79a99a}.qq-selected-bin{fill:#be6845}.qq-point{fill:#397b6b;stroke:#fbfbf9;stroke-width:.7}.qq-point.selected{fill:#b94e2b;stroke:#fff;stroke-width:1.2}.qq-reference{fill:none;stroke:#526d65;stroke-width:1.5}.qq-guide{stroke:#b95d39;stroke-width:1;stroke-dasharray:4 3}.qq-selection,.qq-interpretation{margin:10px 0;font-size:.93em;line-height:1.6}.qq-selection{border-left:2px solid #b5cec3;padding-left:10px}.qq-note{font-size:.86em;line-height:1.55;color:#536b62}.qq-demo .ctl{flex:1;min-width:190px}.qq-demo .demo-controls{gap:12px}.qq-demo .ctl select{width:100%}
+html[data-theme=dark] .qq-point{fill:#9ccbb9;stroke:#1b2421}html[data-theme=dark] .qq-point.selected,html[data-theme=dark] .qq-selected-bin{fill:#f0964a}html[data-theme=dark] .qq-guide{stroke:#f0964a}html[data-theme=dark] .qq-reference{stroke:#b5cfc4}html[data-theme=dark] .qq-note{color:#aac5b9}
+@media(max-width:650px){.qq-plots{grid-template-columns:minmax(0,1fr);gap:8px}.qq-demo .ctl{min-width:0;flex-basis:100%}}
+
 /* interactive demos in the overviews */
 .demo{margin:22px 0 0;padding:14px 16px 12px;border:1px solid #dfe2dd;border-left:3px solid var(--ink);background:#fbfbf9}
 .demo h3{margin:0 0 4px;font:600 12.5px var(--label);letter-spacing:.1em;text-transform:uppercase;color:#7a5a4c}
@@ -1294,6 +1307,8 @@ function appendGuide(parent,week){
   const termsTitle=document.createElement('h3');termsTitle.textContent='Key terms';
   const list=document.createElement('dl');
   for(const term of guide.terms){const dt=document.createElement('dt');dt.textContent=term[0];const dd=document.createElement('dd');appendTermContent(dd,term);
+    if(week===10&&term[0]==='Q–Q plot')dd.append(demos.qqPlot());
+    if(week===10&&term[0]==='Bootstrap'){activeBootstrap=demos.bootstrap();dd.append(activeBootstrap)}
     list.append(dt,dd)}
   terms.append(termsTitle,list);parent.append(terms);
   const examples=[guide,...(guide.more||[])];
@@ -1501,6 +1516,41 @@ charts.twoBoxes=()=>charts.boxes([['Group A',30,40,52,70,80],['Group B',20,50,58
 })();
 function figure(w,text,key){const f=document.createElement("figure"),cap=document.createElement("figcaption");f.insertAdjacentHTML('beforeend',charts[key||w]());cap.textContent=text||chartCaptions[w]||lessons[w-1].caption;f.append(cap);return f}
 // Distribution functions used by the interactive demos. Checked against R.
+/* bootstrap-model:start */
+const bootstrapStats=(()=>{
+ const summary=values=>{
+  const n=values.length,mean=n?values.reduce((a,b)=>a+b,0)/n:NaN;
+  const sd=n>1?Math.sqrt(values.reduce((a,v)=>a+(v-mean)**2,0)/(n-1)):NaN;
+  return {mean,sd,se:sd/Math.sqrt(n)};
+ };
+ const stat=(values,centre)=>{const s=summary(values);return Number.isFinite(s.se)&&s.se>0?(s.mean-centre)/s.se:null};
+ const draw=(values,random=Math.random)=>values.map(()=>Math.min(values.length-1,Math.floor(random()*values.length)));
+ const tail=(t,observed,mode)=>Number.isFinite(t)&&Number.isFinite(observed)&&(mode==='left'?t<=observed:mode==='right'?t>=observed:Math.abs(t)>=Math.abs(observed));
+ return {summary,stat,draw,tail};
+})();
+/* bootstrap-model:end */
+
+let activeBootstrap=null;
+/* qq-model:start */
+const qqStats=(()=>{
+ const normalCDF=x=>{const a=Math.abs(x)/Math.SQRT2,t=1/(1+.3275911*a),erf=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-a*a);return .5*(1+Math.sign(x)*erf)};
+ const normalQuantile=p=>{if(p===0)return -Infinity;if(p===1)return Infinity;if(!(p>0&&p<1))return NaN;let lo=-8,hi=8;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(normalCDF(m)<p)lo=m;else hi=m}return (lo+hi)/2};
+ const quantile=(values,p)=>{const a=[...values].sort((x,y)=>x-y),i=(a.length-1)*p,j=Math.floor(i);return a[j]+(i-j)*(a[Math.min(j+1,a.length-1)]-a[j])};
+ const make=kind=>{
+  let seed=25;const uniform=()=>{seed=(1664525*seed+1013904223)>>>0;return (seed+.5)/4294967296};
+  const z=Array.from({length:40},()=>Math.sqrt(-2*Math.log(uniform()))*Math.cos(2*Math.PI*uniform()));
+  const a=z.map(x=>kind==='skew'?Math.exp(.75*x):kind==='heavy'?x*(1+.45*x*x):x),mean=a.reduce((s,x)=>s+x,0)/a.length,sd=Math.sqrt(a.reduce((s,x)=>s+(x-mean)**2,0)/(a.length-1));
+  return a.map(x=>50+10*(x-mean)/sd);
+ };
+ const prepare=values=>{
+  const a=[...values].sort((x,y)=>x-y),points=a.map((y,i)=>({x:normalQuantile((i+.5)/a.length),y}));
+  const q1=quantile(a,.25),q3=quantile(a,.75),z1=normalQuantile(.25),z3=normalQuantile(.75),slope=(q3-q1)/(z3-z1);
+  return {points,line:{slope,intercept:q1-slope*z1}};
+ };
+ return {normalQuantile,quantile,make,prepare};
+})();
+/* qq-model:end */
+
 const statMath=(()=>{
  const erf=x=>{const s=x<0?-1:1,a=Math.abs(x),t=1/(1+.3275911*a);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-a*a))};
  const Phi=z=>.5*(1+erf(z/Math.SQRT2));
@@ -1638,6 +1688,100 @@ const demos=(()=>{
   n.input.oninput=reset;level.sel.onchange=reset;render();return d.box;
  };
 
+ const bootstrap=()=>{
+  const original=[2,4,5,6,7,8,10,14],n=original.length,base=bootstrapStats.summary(original),observed=bootstrapStats.stat(original,5);
+  const d=frame('Try it: build a bootstrap distribution','Keep these eight observed waiting times fixed. Draw eight tickets with replacement, calculate one T*, then repeat. This is an illustrative sample, measured in minutes.');
+  d.box.className+=' bootstrap-demo';d.box.dataset.observed=String(observed);
+  const math=body=>'<math xmlns="http://www.w3.org/1998/Math/MathML" displaystyle="true">'+body+'</math>',mi=x=>'<mi>'+x+'</mi>',mn=x=>'<mn>'+x+'</mn>',mo=x=>'<mo>'+x+'</mo>',row=x=>'<mrow>'+x+'</mrow>',frac=(a,b)=>'<mfrac>'+row(a)+row(b)+'</mfrac>',sqrt=x=>'<msqrt>'+x+'</msqrt>',bar=x=>'<mover>'+mi(x)+'<mo>¯</mo></mover>',star=x=>'<msup>'+x+'<mo>*</mo></msup>';
+  const X=bar('x'),Xs=star(X),Ss=star(mi('s')),Ts=star(mi('T'));
+  const originalStats=el('p','bootstrap-original-stats');originalStats.innerHTML='Original sample: '+math(mi('n')+mo('=')+mn(n))+', '+math(X+mo('=')+mn(base.mean))+', '+math(mi('s')+mo('≈')+mn(base.sd.toFixed(3)))+', '+math('<mtext>SE</mtext>'+mo('≈')+mn(base.se.toFixed(3)))+'. Test '+math('<msub><mi>H</mi><mn>0</mn></msub><mo>:</mo><mi>μ</mi><mo>=</mo><mn>5</mn>')+'.';
+  const observedLine=el('p','bootstrap-observed');observedLine.innerHTML='Observed statistic: '+math(mi('t')+mo('=')+frac(mn(7)+mo('−')+mn(5),mn(base.se.toFixed(3)))+mo('≈')+mn(observed.toFixed(3)))+'.';
+  const sourceWrap=el('div','bootstrap-box'),sourceTitle=el('p','bootstrap-label','1 · Original sample — every ticket stays available'),source=el('div','bootstrap-tickets');
+  sourceWrap.append(sourceTitle,source);const tiles=original.map((value,i)=>{const tile=el('div','bootstrap-ticket');tile.dataset.source=String(i);tile.append(el('span','bootstrap-id','#'+(i+1)),el('strong','',String(value)));source.append(tile);return tile});
+  const resampleWrap=el('div','bootstrap-box'),resampleTitle=el('p','bootstrap-label','2 · Current resample — 0 / 8 draws'),resample=el('div','bootstrap-tickets');resampleWrap.append(resampleTitle,resample);
+  const status=el('p','bootstrap-status','Press “Draw one ticket” to start.');status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.setAttribute('aria-atomic','true');
+  const calculation=el('div','bootstrap-calculation');
+  const formula=el('p','bootstrap-formula');formula.innerHTML=math(Ts+mo('=')+frac(Xs+mo('−')+X,frac(Ss,sqrt(mi('n')))));
+  const explanation=el('p','bootstrap-note','Subtract the original mean (7), not the null mean (5). Use this resample’s own SD and SE. Each completed resample contributes one T* to the chart.');
+  const chart=el('div','bootstrap-chart'),chartTitle=el('p','bootstrap-label','3 · Repeated T* values'),key=el('p','bootstrap-key'),estimate=el('p','bootstrap-estimate');
+  d.stage.append(originalStats,observedLine,sourceWrap,resampleWrap,status,formula,calculation,explanation,chartTitle,chart,key,estimate);
+  d.read.textContent='This simulation estimates a reference distribution from the observed sample. More resamples reduce simulation noise; they do not add new observations or remove sample bias.';
+  const alternative=choice('Alternative',[['two','μ ≠ 5 · both tails'],['right','μ > 5 · right tail'],['left','μ < 5 · left tail']],'two');alternative.sel.dataset.action='tail';
+  let current=[],values=[],completed=0,undefinedCount=0,lastIndex=-1,timer=null,target=0;
+  const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const make=(action,label,handler)=>{const b=button(label,handler);b.dataset.action=action;return b};
+  const play=make('play',reduced()?'Draw 10 resamples':'Play 10 resamples',()=>{if(timer){stop();return}if(reduced()){batch(10);return}target=completed+10;timer=setInterval(()=>{if(d.box.isConnected===false||document.hidden||reduced()||state.view!=='overview'||state.week!==10||$('lesson').open===false){stop();return}one();render();if(completed>=target)stop()},360);syncPlay()});
+  const syncPlay=()=>{d.box.dataset.running=timer?'true':'false';play.textContent=timer?'Pause':reduced()?'Draw 10 resamples':'Play 10 resamples';play.setAttribute('aria-pressed',String(Boolean(timer)))};
+  const stop=()=>{if(timer!==null){clearInterval(timer);timer=null}syncPlay()};d.box.stopBootstrap=stop;
+  const one=()=>{
+   if(current.length===n)current=[];
+   lastIndex=Math.floor(Math.random()*n);current.push(lastIndex);
+   if(current.length===n){const value=bootstrapStats.stat(current.map(i=>original[i]),base.mean);completed++;if(value===null)undefinedCount++;else values.push(value)}
+  };
+  const finish=()=>{if(current.length===n)current=[];while(current.length<n)one()};
+  const batch=count=>{stop();for(let i=0;i<count;i++)finish();render()};
+  const step=make('step','Draw one ticket',()=>{stop();one();render()}),finishButton=make('finish','Finish this resample',()=>{stop();finish();render()}),batchButton=make('batch','Add 1,000 resamples',()=>batch(1000)),reset=make('reset','Reset',()=>{stop();current=[];values=[];completed=0;undefinedCount=0;lastIndex=-1;render()});
+  d.controls.append(step,finishButton,play,batchButton,reset,alternative.wrap);
+  const render=()=>{
+   const mode=alternative.sel.value;let extreme=0;for(const v of values)if(bootstrapStats.tail(v,observed,mode))extreme++;
+   d.box.dataset.completed=String(completed);d.box.dataset.finite=String(values.length);d.box.dataset.tail=String(extreme);d.box.dataset.drawn=String(current.length);d.box.dataset.undefined=String(undefinedCount);d.box.dataset.excluded=String(undefinedCount);for(const k of ['lastT','lastMean','lastSd','lastSe'])d.box.dataset[k]='';syncPlay();
+   tiles.forEach((tile,i)=>{tile.className='bootstrap-ticket'+(i===lastIndex?' picked':'');tile.setAttribute('aria-label','Observation '+(i+1)+': '+original[i]+(i===lastIndex?', selected on the latest draw':''))});
+   resample.replaceChildren();
+   for(let i=0;i<n;i++){const index=current[i],tile=el('div','bootstrap-ticket'+(index===undefined?' empty':i===current.length-1?' latest':''));if(index!==undefined){tile.dataset.pick=String(index);tile.append(el('span','bootstrap-id','from #'+(index+1)),el('strong','',String(original[index])))}else tile.append(el('span','bootstrap-id','draw '+(i+1)),el('strong','','—'));resample.append(tile)}
+   resampleTitle.textContent='2 · Current resample — '+current.length+' / '+n+' draws';
+   status.textContent=current.length?'Draw '+current.length+': observation #'+(lastIndex+1)+' was selected. It remains available for the next draw.'+(current.length===n?' Resample '+completed+' is complete.':''):'Press “Draw one ticket” to start.';
+   if(current.length===n){const s=bootstrapStats.summary(current.map(i=>original[i])),value=bootstrapStats.stat(current.map(i=>original[i]),base.mean);d.box.dataset.lastT=value===null?'':String(value);d.box.dataset.lastMean=String(s.mean);d.box.dataset.lastSd=String(s.sd);d.box.dataset.lastSe=String(s.se);calculation.innerHTML='<p>'+math(Xs+mo('=')+mn(s.mean.toFixed(3)))+'; '+math(Ss+mo('≈')+mn(s.sd.toFixed(3)))+'; '+math('<msup><mtext>SE</mtext><mo>*</mo></msup>'+mo('=')+frac(mn(s.sd.toFixed(3)),sqrt(mn(n)))+mo('≈')+mn(s.se.toFixed(3)))+'.</p><p>'+ (value===null?'This resample has SD = 0, so T* is undefined and is not added to the histogram.':math(Ts+mo('=')+frac(mn(s.mean.toFixed(3))+mo('−')+mn(base.mean),mn(s.se.toFixed(3)))+mo('≈')+mn(value.toFixed(3))))+'</p>';
+   }else calculation.textContent='Complete all eight draws to calculate this resample’s mean, sample SD, SE and T*.';
+   let extent=4;for(const value of values)extent=Math.max(extent,Math.abs(value));extent=Math.ceil(extent+.25);
+   const bins=32,width=2*extent/bins,counts=Array(bins).fill(0),tails=Array(bins).fill(0);
+   for(const value of values){const i=Math.min(bins-1,Math.max(0,Math.floor((value+extent)/width)));counts[i]++;if(bootstrapStats.tail(value,observed,mode))tails[i]++}
+   const max=Math.max(1,...counts),top=Math.max(2,Math.ceil(max*1.15)),p=panel({W:560,H:235,x:[-extent,extent],y:[0,top],xt:[-extent,0,extent],yt:[0,max],xl:'Simulated T*',yl:'Count'});
+   let picture=p.s;
+   counts.forEach((count,i)=>{if(!count)return;const x=p.px(-extent+i*width)+.3,w=Math.max(.2,p.px(-extent+(i+1)*width)-p.px(-extent+i*width)-.6),ordinary=count-tails[i];if(ordinary)picture+='<rect class="bootstrap-bar" data-count="'+ordinary+'" x="'+x+'" y="'+p.py(ordinary)+'" width="'+w+'" height="'+(p.base-p.py(ordinary))+'"/>';if(tails[i])picture+='<rect class="bootstrap-tail" data-count="'+tails[i]+'" x="'+x+'" y="'+p.py(count)+'" width="'+w+'" height="'+(p.py(ordinary)-p.py(count))+'"/>'});
+   const cutoffs=mode==='two'?[-Math.abs(observed),Math.abs(observed)]:[observed];for(const cutoff of cutoffs)picture+=L(p.px(cutoff),p.base,p.px(cutoff),p.py(top),'bootstrap-cutoff');
+   draw(chart,svg(560,235,'Bootstrap histogram of '+values.length+' finite T statistics; '+extreme+' in the selected tail or tails',picture));
+   const event=mode==='two'?'|T*| ≥ '+Math.abs(observed).toFixed(3):mode==='right'?'T* ≥ '+observed.toFixed(3):'T* ≤ '+observed.toFixed(3);
+   key.textContent='Orange: '+event+'. Dashed lines mark the observed cutoff'+(mode==='two'?'s.':'.')+' All finite simulations are included.';
+   estimate.textContent=values.length?'Estimated p-value = '+extreme.toLocaleString('en')+' / '+values.length.toLocaleString('en')+' = '+(extreme/values.length).toFixed(4)+'. '+completed.toLocaleString('en')+' completed resamples.':completed?'No finite T* values yet. '+completed.toLocaleString('en')+' completed resamples.':'No completed resamples yet. Each one will add a statistic to this distribution.';
+   if(undefinedCount)estimate.textContent+=' '+undefinedCount+' zero-SD resample'+(undefinedCount===1?' has':'s have')+' undefined T*: omitted from both the histogram and the denominator.';
+  };
+  alternative.sel.onchange=render;render();return d.box;
+ };
+
+ const qqPlot=()=>{
+  const d=frame('Try it: read a normal Q–Q plot','Compare the same 40 observations in a histogram and a Q–Q plot. Move the rank slider to follow one ordered observation between the plots.');
+  d.box.className+=' qq-demo';
+  const shape=choice('Illustrative sample',[['normal','Approximately normal'],['skew','Right-skewed'],['heavy','Long tails']],'normal'),rank=slider('Ordered observation (rank)',1,40,1,20,v=>v+' of 40');
+  shape.sel.dataset.action='shape';rank.input.dataset.action='rank';d.controls.append(shape.wrap,rank.wrap);
+  const chartsRow=el('div','qq-plots'),hist=el('div','qq-histogram'),plot=el('div','qq-scatter');chartsRow.append(hist,plot);
+  const selection=el('p','qq-selection');selection.setAttribute('role','status');selection.setAttribute('aria-live','polite');selection.setAttribute('aria-atomic','true');
+  const interpretation=el('p','qq-interpretation'),lineNote=el('p','qq-note','The reference line passes through the sample’s first and third quartiles. Its slope need not be 1: the two axes use different scales.');
+  d.stage.append(chartsRow,selection,interpretation,lineNote);
+  d.read.textContent='These fixed illustrative samples have the same mean (50) and sample SD (10), so compare their shapes. Real samples vary: a nearly straight Q–Q plot supports approximate normality but does not prove it.';
+  const interpretations={normal:'The points lie roughly along the line, with some sampling variation. This is the pattern expected from an approximately normal population.',skew:'The upper observations rise away from the line and the plot bends systematically. This pattern is consistent with a longer right tail.',heavy:'The low observations fall below the line and the high observations rise above it. Both tails extend further than a normal model predicts.'};
+  const render=()=>{
+   rank.show();const kind=shape.sel.value,a=qqStats.make(kind),prepared=qqStats.prepare(a),points=prepared.points,selected=points[rank.v-1],reference=prepared.line;
+   d.box.dataset.kind=kind;d.box.dataset.rank=String(rank.v);d.box.dataset.x=String(selected.x);d.box.dataset.y=String(selected.y);
+   const low=Math.floor((points[0].y-3)/5)*5,high=Math.ceil((points.at(-1).y+3)/5)*5,bins=12,width=(high-low)/bins,counts=Array(bins).fill(0),selectedBin=Math.min(bins-1,Math.floor((selected.y-low)/width));
+   for(const v of a)counts[Math.min(bins-1,Math.max(0,Math.floor((v-low)/width)))]++;
+   const max=Math.max(...counts),hp=panel({W:360,H:280,x:[low,high],y:[0,max+2],xt:[low,50,high],yt:[0,max],title:'Same 40 observations',xl:'Observed value',yl:'Count',l:43,r:15});
+   let picture=hp.s;
+   counts.forEach((count,i)=>{const x=hp.px(low+i*width)+.5,w=hp.px(low+(i+1)*width)-hp.px(low+i*width)-1;picture+='<rect class="'+(i===selectedBin?'qq-selected-bin':'qq-bin')+'" data-count="'+count+'" x="'+x+'" y="'+hp.py(count)+'" width="'+w+'" height="'+(hp.base-hp.py(count))+'"/>'});
+   picture+=L(hp.px(selected.y),hp.base,hp.px(selected.y),hp.py(max+1.5),'qq-guide');
+   draw(hist,svg(360,280,'Histogram of 40 observations; the selected value is '+selected.y.toFixed(2),picture));
+   const qp=panel({W:360,H:280,x:[-2.5,2.5],y:[low,high],xt:[-2,0,2],yt:[low,50,high],title:'Normal Q–Q plot',xl:'Expected normal quantile',yl:'Ordered observed value',l:48,r:15});
+   const x0=Math.max(-2.5,(low-reference.intercept)/reference.slope),x1=Math.min(2.5,(high-reference.intercept)/reference.slope);
+   let scatter=qp.s+line(qp,[[x0,reference.intercept+reference.slope*x0],[x1,reference.intercept+reference.slope*x1]],'qq-reference');
+   scatter+=L(qp.px(selected.x),qp.base,qp.px(selected.x),qp.py(selected.y),'qq-guide')+L(qp.px(-2.5),qp.py(selected.y),qp.px(selected.x),qp.py(selected.y),'qq-guide');
+   points.forEach((point,i)=>{scatter+='<circle class="qq-point'+(i===rank.v-1?' selected':'')+'" data-rank="'+(i+1)+'" data-selected="'+String(i===rank.v-1)+'" cx="'+qp.px(point.x)+'" cy="'+qp.py(point.y)+'" r="'+(i===rank.v-1?5:2.8)+'"/>'});
+   draw(plot,svg(360,280,'Normal Q–Q plot; selected observation '+rank.v+' has expected quantile '+selected.x.toFixed(3)+' and observed value '+selected.y.toFixed(3),scatter));
+   const pct=100*(rank.v-.5)/40;
+   selection.textContent='Rank '+rank.v+' of 40: use normal percentile ('+rank.v+' − 0.5) / 40 = '+pct.toFixed(2)+'%. Horizontal coordinate: '+selected.x.toFixed(3)+'. Vertical coordinate: ordered observation #'+rank.v+', value '+selected.y.toFixed(3)+'. Orange marks this same observation in both plots.';
+   interpretation.textContent=interpretations[kind];
+  };
+  shape.sel.onchange=render;rank.input.oninput=render;render();return d.box;
+ };
+
  const tVsNormal=()=>{
   const d=frame('Try it: the t curve against the normal curve','Lower the degrees of freedom and watch the tails thicken. The two shaded tails each hold 2.5% of the t curve.');
   const df=slider('Degrees of freedom',1,30,1,4,v=>String(v));d.controls.append(df.wrap);
@@ -1674,7 +1818,7 @@ const demos=(()=>{
   for(const s of [a,b,x])s.input.oninput=update;update();return d.box;
  };
 
- return {3:[normalArea('area')],4:[correlation],7:[clt,lawOfAverages],8:[coverage],9:[normalArea('p')],10:[tVsNormal],12:[chiSquared],15:[logistic]};
+ return {bootstrap,qqPlot,3:[normalArea('area')],4:[correlation],7:[clt,lawOfAverages],8:[coverage],9:[normalArea('p')],10:[tVsNormal],12:[chiSquared],15:[logistic]};
 })();
 function appendDemos(parent,week){for(const build of demos[week]||[])parent.append(build())}
 
@@ -1898,6 +2042,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['16 Nov 2026 · Explore Q–Q plots and the bootstrap', ['Week 10 now pairs histograms with Q–Q plots so you can compare normal-like, skewed and long-tailed samples. A bootstrap demonstration lets you draw with replacement, calculate each resample’s T statistic and build a simulated reference distribution. Tail counts show how the estimated p-value changes with the alternative. Your practice progress is unchanged.']],
 ['15 Nov 2026 · Worked answers with reasons', ['All practice answers, mock-paper solutions and worked examples now combine formulas with concise method explanations and conclusions. Questions, ordering, R output and saved progress are unchanged.']],
 ['15 Nov 2026 · Shorter written solutions', ['Tablet-content reference answers now show formulas and calculations on separate lines, with brief reasons. Written answers keep supporting explanations in an optional section instead of repeating the main answer and a generic checklist.']],
 ['15 Nov 2026 · Written practice modes', ['Study mode checks one written part at a time. Exam mode keeps reference answers hidden until the whole case is attempted and submitted. Drafts and self-check progress are retained, and previously viewed reference answers are labelled.']],
@@ -1984,6 +2129,7 @@ function renderHome(){
 }
 function applyView(){
   const view=['home','overview','formulas','missed'].includes(state.view)?state.view:'practice';
+  if(view!=='overview'||state.week!==10)activeBootstrap?.stopBootstrap();
   $('reading').dataset.view=view;$('studyMain').dataset.view=view;
   for(const [id,name] of [['tabHome','home'],['tabOverview','overview'],['tabPractice','practice'],['tabFormulas','formulas'],['tabMissed','missed']])$(id).setAttribute('aria-selected',String(view===name));
   if(view==='home')renderHome();
