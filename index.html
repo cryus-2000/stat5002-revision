@@ -741,6 +741,14 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 @media(max-width:720px){.demo{padding:12px 12px 10px}.ctl{min-width:100%}.ctl.check{min-width:0}.demo-controls{gap:10px 10px}}
 
 /* tabs stay at the top of the reading area, so "All weeks" is always one click away */
+.map-window{width:min(56rem,94vw);max-height:86dvh;padding:0;color:var(--ink);background:Canvas;border:1px solid #849c94;border-radius:9px;overflow:auto;overscroll-behavior:contain}
+.map-window::backdrop{background:rgb(20 35 31 / .48)}
+.map-bar{position:sticky;top:0;z-index:1;background:Canvas;display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.2rem;border-bottom:1px solid #849c94}
+.map-bar h2{font-size:1.35rem;margin:0}.map-groups{padding:.4rem 1.2rem 1rem}
+.map-group{margin:0;border-bottom:1px solid #849c9466}.map-group>summary{font:600 1.05rem/1.4 var(--label);padding:.9rem 0;cursor:pointer}
+.map-entry{border-inline-start:3px solid #54877d;padding:.1rem .9rem;margin:.5rem 0 1rem;min-width:0}
+.map-entry h3,.map-entry p{margin:.25rem 0}.map-entry details{margin:.45rem 0}.map-entry summary{cursor:pointer;text-decoration:underline;text-underline-offset:.2em}
+.map-entry .formula-sheet{margin:.4rem 0;padding:0;overflow-x:auto}.map-entry .map-scope{font-size:.92em;font-style:italic}
 #tabs{position:sticky;top:calc(-1*var(--pad));z-index:3;margin:calc(-1*var(--pad)) calc(-1*var(--pad)) 18px;padding:var(--pad) var(--pad) 0;background:linear-gradient(#22211f,#22211f) right 9px top 9px/26px 2px no-repeat,linear-gradient(#22211f,#22211f) right 9px top 9px/2px 18px no-repeat,#fff}
 html[data-theme=dark] #tabs{background:linear-gradient(#ece9e2,#ece9e2) right 9px top 9px/26px 2px no-repeat,linear-gradient(#ece9e2,#ece9e2) right 9px top 9px/2px 18px no-repeat,#15181b}
 #tabs::after{content:"";position:absolute;left:var(--pad);right:var(--pad);bottom:0;border-bottom:1px solid #d9dfdc}
@@ -2082,6 +2090,7 @@ const chooserExamples=[["A shop claims half of its customers prefer brand A. In 
 // The parts of the Formulas tab open and close on their own. Which ones are open is remembered, and the buttons at the top open a part and scroll to it.
 function setUpFormulaSections(){
   const bar=$('fJump'),refs=$('refs');if(!bar||!bar.append||!refs.querySelectorAll)return;
+  bar.append(formulaMapButton());
   const parts=[[$('fWeek'),'week','This week'],[$('fChooser'),'chooser','Choosing a test']];
   refs.querySelectorAll('details').forEach((d,i)=>parts.push([d,'ref'+i,d.querySelector('summary').textContent]));
   const open=state.fOpen||(state.fOpen={week:true});
@@ -2233,6 +2242,89 @@ const updates=[
   ['12 November 2026',['126 questions reworked so they need no calculator','Overviews and formula sheets now use the lecture notation','60 key terms rewritten with the lecture formulas','Pictures for homoscedastic data and for residual patterns','36 question stems reworded for clarity','124 repeated or recall-only questions removed','24 cross-week questions that combine topics','Missed tab lists the key terms you miss most','57 new exam-level questions','33 new key terms','New written case: Z-test for a mean','Every answer re-checked independently','Explanations completed and matched to the slides']],
   ['11 November 2026',['New Missed tab with key ideas and solutions','Warm-up and Exam level labels','R questions ask you to read output, not write code','Expandable Formulas sections','A note on every wrong option','First public version']]
 ];
+// Numbers select the corresponding sections of each weekly sheet (after Notation).
+// Keep the MathML and its explanation together, including formulas written inline.
+const formulaMapGroups=[
+  ['How do I describe the data?', [
+    ['Compare shares, rates or histogram bars','A share uses the number of observations as its denominator. For a rate use the exposure. In a density histogram, height × width gives the share.',1,[1,2,3]],
+    ['Choose a centre and spread','For a skewed sample, use the median and IQR = Q₃ − Q₁. For roughly symmetric data, the mean and SD describe the centre and the spread around it.',2,[1,2,4]],
+    ['Change the measurement units','Adding a constant shifts the mean. Multiplying every observation by b scales the SD by |b|.',2,[3]],
+    ['Measure linear association','With two numerical measurements per unit, standardise both variables to find r. The sign gives the direction of the association.',4,[1]]
+  ]],
+  ['What is the chance of this outcome?', [
+    ['Combine events','For “both”, multiply the first probability by the conditional probability of the second. For “at least one”, subtract the chance of none from 1.',5,[1,2,3]],
+    ['Find a tail area or a cutoff','For a single observation from a normal population, standardise using its SD. Use pnorm for an area and qnorm for a cutoff.',3,[1,2,3],'Normal-table lookup is outside assessment.'],
+    ['Count successes or take an average','For independent draws from one box, SE(sum) = √n × SD(box) and SE(mean) = SD(box)/√n. With 0–1 tickets these give the SE of the count and the proportion respectively.',6,[1,2,3],'The derivation of the sum SE is outside assessment. Use the result.'],
+    ['Approximate a probability for repeated draws','Centre the sum or mean at its expected value and divide its deviation by its own SE. For a count, check that both expected counts are reasonably large.',7,[1,2,3]]
+  ]],
+  ['How do I estimate a population value?', [
+    ['Estimate a proportion or plan a sample size','For a Wald interval, estimate the SE using the observed proportion. Wilson checks each candidate proportion using its own SE. For planning, choose the margin of error before finding n.',8,[1,2,3],'Wilson closed-form endpoints do not need to be memorised. Know which candidate rates the interval includes.'],
+    ['Estimate a mean with unknown population SD','For independent observations with a roughly normal sample mean, use the sample SD divided by √n. A t interval allows for estimating the SD. For a bootstrap-t interval, use quantiles of the resampled t statistics.',10,[1,3]]
+  ]],
+  ['Does a mean or proportion differ from a claim?', [
+    ['One proportion or one mean with known SD','For a proportion, use the claimed rate in the null SE. For a mean with known population SD, use σ/√n. Choose one or two tails from the alternative hypothesis.',9,[1,2,3]],
+    ['One mean with unknown SD','Use s/√n and compare t with the t distribution on n − 1 df. For a small sample, check that a normal model for the observations is reasonable.',10,[1,2],'The derivation of the n − 1 variance divisor is outside assessment.'],
+    ['Two measurements on each person','Subtract in the order named in the question. Use the SD of the paired differences divided by the square root of the number of pairs. For small samples check the distribution of those differences.',11,[4]],
+    ['Two independent groups','With known population SDs, combine the two variances of the means and use Z. With estimated SDs, use pooled t if equal variances are assumed, or Welch t when they can differ.',11,[1,2,3],'Read Welch df from R. The pooled df derivation is outside assessment.']
+  ]],
+  ['Do observed counts fit the expected pattern?', [
+    ['One categorical variable','Under a specified distribution, expected count = sample size × claimed probability. With k categories and h parameters estimated from the counts, use k − 1 − h df.',12,[1,2]],
+    ['Two categorical variables','Under independence, expected count = row total × column total / grand total. Both tests add the squared discrepancy divided by its expected count and use the upper tail. Check expected cell sizes.',12,[3]]
+  ]],
+  ['How do I predict a numerical response or compare linear models?', [
+    ['Fit a line and measure the variation explained','For one predictor with an intercept, the slope is r × SD(y)/SD(x) and R² = r². A residual is observed minus fitted.',4,[2,3],'The least-squares derivation is outside assessment.'],
+    ['Interpret one coefficient','Hold the other predictors fixed. Test a single slope with its estimate divided by its SE. When the response is logged, exponentiate the slope to obtain a multiplier.',13,[1,2,3,4],'The derivation of the slope SE is outside assessment.'],
+    ['Test several slopes together','Compare nested models fitted to the same observations. Divide the RSS reduction per added coefficient by the full model’s residual mean square. The overall F test uses an intercept-only reduced model.',14,[1,2,3],'The F-statistic and adjusted R² formulas do not need to be memorised. Practise using the model output.']
+  ]],
+  ['How do I predict a yes/no response?', [
+    ['Convert a prediction to a probability','For a binary or grouped binomial response, the linear predictor gives log-odds. Exponentiating gives odds. Divide odds by one plus odds to obtain the probability.',15,[1]],
+    ['Interpret or test a predictor','Holding other predictors fixed, exp(slope) multiplies the odds for a one-unit increase. For a zero slope, compare estimate/SE with the standard normal distribution.',15,[2,3]]
+  ]]
+];
+function formulaMapButton(){
+  const button=document.createElement('button');button.type='button';button.textContent='Formula map · W1–W15';
+  button.setAttribute('aria-haspopup','dialog');
+  button.onclick=()=>{
+    let dialog=document.getElementById('courseFormulaMap');
+    if(!dialog){
+      dialog=document.createElement('dialog');dialog.id='courseFormulaMap';dialog.className='map-window';
+      dialog.setAttribute('aria-labelledby','formulaMapTitle');
+      dialog.innerHTML='<div class="map-bar"><h2 id="formulaMapTitle">Formula map · W1–W15</h2><button type="button">Close</button></div><div class="map-groups"></div>';
+      dialog.querySelector('button').onclick=()=>dialog.close();
+      for(const [question,entries] of formulaMapGroups){
+        const group=document.createElement('details');group.className='map-group';
+        const heading=document.createElement('summary');heading.textContent=question;group.append(heading);
+        for(const [title,condition,week,indices,scope] of entries){
+          const card=document.createElement('section');card.className='map-entry';
+          const label=document.createElement('h3');label.textContent=title;
+          const text=document.createElement('p');text.textContent=condition;card.append(label,text);
+          if(scope){const note=document.createElement('p');note.className='map-scope';note.textContent='Exam scope · '+scope;card.append(note)}
+          const more=document.createElement('details'),link=document.createElement('summary');
+          link.textContent='Week '+week+' · View formulas';more.append(link);
+          more.addEventListener('toggle',()=>{
+            if(!more.open||more.children.length>1)return;
+            const sheet=document.createElement('div');sheet.className='formula-sheet';sheet.innerHTML=formatSheet(week);
+            const sections=[];
+            for(const paragraph of sheet.querySelectorAll('p')){
+              if(paragraph.closest('.notation'))continue;
+              if(paragraph.firstElementChild?.tagName==='STRONG')sections.push([]);
+              sections.at(-1)?.push(paragraph);
+            }
+            sheet.replaceChildren(...indices.flatMap(i=>sections[i-1]));
+            const jump=document.createElement('button');jump.type='button';jump.textContent='Open Week '+week+' formula sheet';
+            jump.onclick=()=>{dialog.close();if(state.week!==week){$('week').value=String(week);$('week').onchange()}setView('formulas');$('fWeek').open=true;$('fWeek').scrollIntoView({block:'start'})};
+            more.append(sheet,jump);
+          });
+          card.append(more);group.append(card);
+        }
+        dialog.querySelector('.map-groups').append(group);
+      }
+      document.body.append(dialog);
+    }
+    dialog.showModal();
+  };
+  return button;
+}
 function renderHome(){
   const home=$('home');home.replaceChildren();
   const make=(tag,cls,text)=>{const el=document.createElement(tag);el.className=cls;if(text!==undefined)el.textContent=text;return el};
@@ -2249,6 +2341,7 @@ function renderHome(){
     resume.onclick=()=>{state.week=current.w;go(current.id)};top.append(resume);
   }
   home.append(top);
+  home.append(formulaMapButton());
   if(!ids.length){const lost=make('p','lost-note','No answers are saved in this browser yet. If you have answered questions before and kept a progress file, load it with ');const b=make('button','','Import progress');b.type='button';b.onclick=()=>$('importProgress').click();lost.append(b,'. To stop this happening, turn on ');const a=make('button','','Autosave to a file');a.type='button';a.onclick=()=>$('autoSave').click();lost.append(a,', which writes your progress to a file after every answer.');home.append(lost)}
   if(state.seenUpdate!==updates[0][0]+'#'+updates[0][1].length){
     // shown until the visitor opens the log or closes the card
