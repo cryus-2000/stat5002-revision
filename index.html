@@ -745,7 +745,8 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 .map-window::backdrop{background:rgb(20 35 31 / .48)}
 .map-bar{position:sticky;top:0;z-index:1;background:Canvas;display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.2rem;border-bottom:1px solid #849c94}
 .map-bar h2{font-size:1.35rem;margin:0}.map-groups{padding:.4rem 1.2rem 1rem}
-.map-group{margin:0;border-bottom:1px solid #849c9466}.map-group>summary{font:600 1.05rem/1.4 var(--label);padding:.9rem 0;cursor:pointer}
+.map-group{margin:0;border-bottom:1px solid #849c9466;scroll-margin-top:5rem}.map-group>h3{font:600 1.25rem/1.4 var(--label);padding:.9rem 0;margin:0}
+.map-index{padding:.7rem 1.2rem;display:flex;gap:.25rem;flex-wrap:wrap}.map-index button{font:inherit;font-size:.95rem}
 .map-entry{border-inline-start:3px solid #54877d;padding:.1rem .9rem;margin:.5rem 0 1rem;min-width:0}
 .map-entry h3,.map-entry p{margin:.25rem 0}.map-entry details{margin:.45rem 0}.map-entry summary{cursor:pointer;text-decoration:underline;text-underline-offset:.2em}
 .map-entry .formula-sheet{margin:.4rem 0;padding:0;overflow-x:auto}.map-entry .map-scope{font-size:.92em;font-style:italic}
@@ -2220,6 +2221,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['18 Nov 2026 · One-page formula map', ['Read the Week 1–15 formulas on one page. Jump to a question type to compare methods, check their conditions and see which formulas are supplied in the exam.']],
 ['16 Nov 2026 · Lecture emphasis restored', ['Important conditions, comparison directions and interpretation warnings are now emphasized in the knowledge summaries, following the lecture slides. Wording, formulas, questions and saved progress are unchanged.']],
 ['16 Nov 2026 · Graph and R interpretation', ['Three existing questions now assess barplot layouts, apply() margins and formula dots. The two-sample introduction and several definitions use complete sentences. Saved answers and drafts are retained.']],
 ['16 Nov 2026 · Question clarity and exam alignment', ['Checked the question bank against the Practice Exam. Clarified assumptions and misleading options, shortened model output, and reordered a few exercises. Question IDs, saved progress and written drafts are kept.']],
@@ -2289,20 +2291,19 @@ function formulaMapButton(){
     if(!dialog){
       dialog=document.createElement('dialog');dialog.id='courseFormulaMap';dialog.className='map-window';
       dialog.setAttribute('aria-labelledby','formulaMapTitle');
-      dialog.innerHTML='<div class="map-bar"><h2 id="formulaMapTitle">Formula map · W1–W15</h2><button type="button">Close</button></div><div class="map-groups"></div>';
+      dialog.innerHTML='<div class="map-bar"><h2 id="formulaMapTitle">Formula map · W1–W15</h2><button type="button">Close</button></div><div class="map-index" role="navigation" aria-label="Jump to a question type"></div><div class="map-groups"></div>';
       dialog.querySelector('button').onclick=()=>dialog.close();
       for(const [question,entries] of formulaMapGroups){
-        const group=document.createElement('details');group.className='map-group';
-        const heading=document.createElement('summary');heading.textContent=question;group.append(heading);
+        const group=document.createElement('section');group.className='map-group';
+        const heading=document.createElement('h3');heading.textContent=question;heading.tabIndex=-1;group.append(heading);
+        const shortcut=document.createElement('button');shortcut.type='button';shortcut.textContent=question;
+        shortcut.onclick=()=>{heading.focus({preventScroll:true});group.scrollIntoView({block:'start'})};
+        dialog.querySelector('.map-index').append(shortcut);
         for(const [title,condition,week,indices,scope] of entries){
           const card=document.createElement('section');card.className='map-entry';
-          const label=document.createElement('h3');label.textContent=title;
+          const label=document.createElement('h4');label.textContent='W'+week+' · '+title;
           const text=document.createElement('p');text.textContent=condition;card.append(label,text);
           if(scope){const note=document.createElement('p');note.className='map-scope';note.textContent='Exam scope · '+scope;card.append(note)}
-          const more=document.createElement('details'),link=document.createElement('summary');
-          link.textContent='Week '+week+' · View formulas';more.append(link);
-          more.addEventListener('toggle',()=>{
-            if(!more.open||more.children.length>1)return;
             const sheet=document.createElement('div');sheet.className='formula-sheet';sheet.innerHTML=formatSheet(week);
             const sections=[];
             for(const paragraph of sheet.querySelectorAll('p')){
@@ -2313,9 +2314,7 @@ function formulaMapButton(){
             sheet.replaceChildren(...indices.flatMap(i=>sections[i-1]));
             const jump=document.createElement('button');jump.type='button';jump.textContent='Open Week '+week+' formula sheet';
             jump.onclick=()=>{dialog.close();if(state.week!==week){$('week').value=String(week);$('week').onchange()}setView('formulas');$('fWeek').open=true;$('fWeek').scrollIntoView({block:'start'})};
-            more.append(sheet,jump);
-          });
-          card.append(more);group.append(card);
+          card.append(sheet,jump);group.append(card);
         }
         dialog.querySelector('.map-groups').append(group);
       }
