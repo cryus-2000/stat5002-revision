@@ -741,7 +741,7 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 @media(max-width:720px){.demo{padding:12px 12px 10px}.ctl{min-width:100%}.ctl.check{min-width:0}.demo-controls{gap:10px 10px}}
 
 /* tabs stay at the top of the reading area, so "All weeks" is always one click away */
-.map-window{width:min(56rem,94vw);max-height:86dvh;padding:0;color:var(--ink);background:Canvas;border:1px solid #849c94;border-radius:9px;overflow:auto;overscroll-behavior:contain}
+.map-window{width:min(76rem,96vw);max-height:90dvh;padding:0;color:var(--ink);background:Canvas;border:1px solid #849c94;border-radius:9px;overflow:auto;overscroll-behavior:contain}
 .map-window::backdrop{background:rgb(20 35 31 / .48)}
 .map-assumptions{padding-inline-start:1.05em;margin:0}.map-assumptions li+li{margin-top:.3em}
 .test-guide{width:100%;border-collapse:collapse;font-size:.95rem}
@@ -750,6 +750,10 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 .test-guide th[scope=row]{width:17%}
 .test-guide math{display:block math;width:fit-content;max-width:100%;margin:.25rem auto}
 .test-guide small{color:inherit}
+.test-guide{line-height:1.4}.test-guide thead{background:rgb(84 135 125 / .1);font:600 .91rem/1.35 var(--label)}
+.test-guide tbody tr:nth-child(even){background:rgb(84 135 125 / .04)}
+.test-guide .math-line{display:block;white-space:nowrap}.test-guide .cell-note{display:block;font-size:.9em;margin-top:.3em}
+@media(min-width:721px){.test-guide th[scope=row]{width:16%}.test-guide thead th:nth-child(2){width:29%}.test-guide thead th:nth-child(4){width:14%}}
 @media(max-width:720px){.test-guide,.test-guide tbody,.test-guide tr,.test-guide td,.test-guide th[scope=row]{display:block;width:100%}.test-guide thead{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}.test-guide tr{padding:.65rem 0;border-bottom:1px solid #849c94}.test-guide td,.test-guide th{border:0;padding:.2rem 0}.test-guide td:before{content:attr(data-label);display:block;font:600 .83rem var(--label);margin-top:.25rem}}
 @media (prefers-reduced-motion:no-preference){
   .map-window{scroll-behavior:smooth;opacity:0;transform:translateY(6px);transition:opacity .16s ease,transform .16s ease,display .16s allow-discrete,overlay .16s allow-discrete}
@@ -2321,8 +2325,8 @@ function intervalComparison(){
   const root=body=>'<msqrt>'+body+'</msqrt>';
   const twoSE=(a,b)=>math(root(frac(a,'n₁')+'<mo>+</mo>'+frac(b,'n₂')));
   const rows=[
-    ['Proportion · Wald (W8)','Independent binary observations|Common success probability|Enough observed successes and failures for a normal approximation',math(root(frac('p̂(1 − p̂)','n'))),'z*','p̂ ± z* SE'],
-    ['Proportion · Wilson (W8)','Independent binary observations|Common success probability',math(root(frac('p(1 − p)','n')))+' for each candidate p','z*','Keep all p satisfying |p̂ − p| ≤ z* SE(p). Read the two endpoints from R.'],
+    ['Proportion · Wald (W8)','Independent binary observations|Same success probability|Enough successes and failures for a normal approximation',math(root(frac('p̂(1 − p̂)','n'))),'z*','p̂ ± z* SE'],
+    ['Proportion · Wilson (W8)','Independent binary observations|Same success probability',math(root(frac('p(1 − p)','n')))+'<span class="cell-note">For each candidate&nbsp;p</span>','z*','<span class="math-line">|p̂ − p| ≤ z* SE(p)</span><span class="cell-note">Keep all p satisfying this condition.</span>'],
     ['Mean · known SD (W8–9)','Independent draws|Population SD σ known|Normal population or approximately normal sample mean',math(frac('σ','√n')),'z*','x̄ ± z* SE'],
     ['Mean · unknown SD (W10)','Independent draws|Population SD estimated by s|For small n, roughly normal population without strong outliers',math(frac('s','√n')),'t* · df = n − 1','x̄ ± t* SE'],
     ['Mean · bootstrap-t (W10)','Independent draws|Sample represents the population spread|Resample n observations with replacement; each resample needs a usable SE',math(frac('s','√n'))+' for endpoints; use s*/√n inside each resampled t.','Empirical quantiles L and U of (x̄* − x̄)/(s*/√n)','[x̄ − U SE, x̄ − L SE]. For 95%, L and U are the 2.5% and 97.5% quantiles.'],
