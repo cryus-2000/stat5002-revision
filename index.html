@@ -743,6 +743,8 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 /* tabs stay at the top of the reading area, so "All weeks" is always one click away */
 .map-window{width:min(56rem,94vw);max-height:86dvh;padding:0;color:var(--ink);background:Canvas;border:1px solid #849c94;border-radius:9px;overflow:auto;overscroll-behavior:contain}
 .map-window::backdrop{background:rgb(20 35 31 / .48)}
+.test-guide{width:100%;border-collapse:collapse;font-size:.95rem}.test-guide th,.test-guide td{text-align:left;vertical-align:top;padding:.65rem .4rem;border-bottom:1px solid #849c9466}.test-guide th[scope=row]{width:17%}.test-guide math{display:block;margin:.25rem 0}.test-guide small{color:inherit}
+@media(max-width:720px){.test-guide,.test-guide tbody,.test-guide tr,.test-guide td,.test-guide th[scope=row]{display:block;width:100%}.test-guide thead{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}.test-guide tr{padding:.65rem 0;border-bottom:1px solid #849c94}.test-guide td,.test-guide th{border:0;padding:.2rem 0}.test-guide td:before{content:attr(data-label);display:block;font:600 .83rem var(--label);margin-top:.25rem}}
 @media (prefers-reduced-motion:no-preference){
   .map-window{scroll-behavior:smooth;opacity:0;transform:translateY(6px);transition:opacity .16s ease,transform .16s ease,display .16s allow-discrete,overlay .16s allow-discrete}
   .map-window[open]{opacity:1;transform:none}
@@ -2230,6 +2232,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['18 Nov 2026 · One-page formula map: test comparison', ['Compare the conditions, statistic, degrees of freedom and tail for each test in Weeks 9–15.']],
 ['18 Nov 2026 · One-page formula map', ['Read the Week 1–15 formulas on one page. Jump to a question type to compare methods, check their conditions and see which formulas are supplied in the exam.', 'The map fades in and out. Its index scrolls to and highlights the selected heading. Reduced-motion settings use an instant jump.']],
 ['16 Nov 2026 · Lecture emphasis restored', ['Important conditions, comparison directions and interpretation warnings are now emphasized in the knowledge summaries, following the lecture slides. Wording, formulas, questions and saved progress are unchanged.']],
 ['16 Nov 2026 · Graph and R interpretation', ['Three existing questions now assess barplot layouts, apply() margins and formula dots. The two-sample introduction and several definitions use complete sentences. Saved answers and drafts are retained.']],
@@ -2292,6 +2295,35 @@ const formulaMapGroups=[
     ['Interpret or test a predictor','Holding other predictors fixed, exp(slope) multiplies the odds for a one-unit increase. For a zero slope, compare estimate/SE with the standard normal distribution.',15,[2,3]]
   ]]
 ];
+function testComparison(){
+  const section=document.createElement('section');section.className='map-group';
+  section.innerHTML='<h3 tabindex="-1">Which test, degrees of freedom and tail?</h3><p>For a signed statistic, choose the tail from the alternative before looking at the data. A smaller value supports a lower alternative, a larger value supports an upper alternative, and a large absolute value supports a two-sided alternative.</p>';
+  const signed='Lower, upper or both, as specified by H₁.';
+  const linear='Independent errors, a linear conditional mean and constant error variance. Normal errors give the exact small-sample reference distribution.';
+  const fraction=(a,b)=>'<math displaystyle="true"><mfrac><mtext>'+a+'</mtext><mtext>'+b+'</mtext></mfrac></math>';
+  const delta='(x̄₁ − x̄₂) − Δ₀';
+  const rows=[
+    ['One proportion · W9','Independent binary observations. Under the claimed rate, both np₀ and n(1 − p₀) must be reasonably large.',fraction('p̂ − p₀','√[p₀(1 − p₀)/n]'),'Z · no df',signed],
+    ['One mean, known SD · W9','Independent observations, known population SD and a normal or approximately normal sample mean.',fraction('x̄ − μ₀','σ/√n'),'Z · no df',signed],
+    ['One mean, unknown SD · W10','Independent observations. For a small sample the population should be approximately normal, without strong outliers.',fraction('x̄ − μ₀','s/√n'),'t · n − 1',signed],
+    ['Paired means · W11','Matched units or repeated measurements. Pairs are independent. For few pairs, the within-pair differences should be roughly normal.',fraction('d̄ − d₀','sᴅ/√n'),'t · n − 1 pairs’ df (n pairs)',signed],
+    ['Independent means, known SDs · W11','Independent random samples, both population SDs known, and each sample mean approximately normal.',fraction(delta,'√(σ₁²/n₁ + σ₂²/n₂)'),'Z · no df',signed],
+    ['Pooled means · W11','Independent random samples with a common population variance. For small samples, each population should be roughly normal.',fraction(delta,'sₚ √(1/n₁ + 1/n₂)')+'<small>sₚ² is the pooled variance, weighting each sample variance by its df.</small>','t · n₁ + n₂ − 2',signed],
+    ['Welch means · W11','Independent random samples whose variances may differ. For small samples, each population should be roughly normal.',fraction(delta,'√(s₁²/n₁ + s₂²/n₂)'),'t · read df from R',signed],
+    ['Goodness of fit · W12','Independent observations counted once in mutually exclusive categories. Expected counts must support the χ² approximation. Eⱼ = npⱼ under H₀.','χ² = ∑ (O − E)²/E','χ² · k − 1 − h (k categories, h parameters fitted to the counts)','Upper only'],
+    ['Independence · W12','Two categorical variables on independent units, one cell per unit. Check expected counts. E = row total × column total / grand total.','χ² = ∑ (O − E)²/E','χ² · (rows − 1)(columns − 1)','Upper only'],
+    ['One linear slope · W13',linear,fraction('β̂ⱼ − βⱼ,₀','SE(β̂ⱼ)'),'t · n − p − 1',signed+' R prints a two-sided p-value.'],
+    ['Overall linear model · W14',linear+' Compare the fitted model with an intercept-only model on the same observations.',fraction('(SST − RSS)/p','RSS/(n − p − 1)'),'F · (p, n − p − 1)','Upper only'],
+    ['Added linear predictors · W14',linear+' Compare nested models with the same response and observations.',fraction('(RSSᴿ − RSSᶠ)/q','RSSᶠ/(n − pᶠ − 1)'),'F · (q, n − pᶠ − 1)','Upper only'],
+    ['One logistic slope · W15','Independent binary outcomes or independent binomial groups. Model log-odds as linear in the predictors. The Wald approximation needs enough events and non-events and a stable coefficient estimate.',fraction('β̂ⱼ − βⱼ,₀','SE(β̂ⱼ)'),'Z · no df',signed+' R prints a two-sided p-value.']
+  ];
+  const labels=['Test','When to use it','Statistic','Reference and df','Tail'];
+  const table=document.createElement('table');table.className='test-guide';table.setAttribute('aria-label','Hypothesis tests compared');
+  table.innerHTML='<thead><tr>'+labels.map(s=>'<th scope="col">'+s+'</th>').join('')+'</tr></thead><tbody>'+rows.map(([name,...cells])=>'<tr><th scope="row">'+name+'</th>'+cells.map((v,i)=>'<td data-label="'+labels[i+1]+'">'+v+'</td>').join('')+'</tr>').join('')+'</tbody>';
+  section.append(table);
+  const note=document.createElement('p');note.textContent='Δ₀ is the claimed difference between independent means. For the regression rows, count slope coefficients excluding the intercept: p for the fitted model, pᶠ for the full model, and q for the added coefficients. F degrees of freedom are written numerator first.';section.append(note);
+  return section;
+}
 function formulaMapButton(){
   const button=document.createElement('button');button.type='button';button.textContent='Formula map · W1–W15';
   button.setAttribute('aria-haspopup','dialog');
@@ -2302,6 +2334,10 @@ function formulaMapButton(){
       dialog.setAttribute('aria-labelledby','formulaMapTitle');
       dialog.innerHTML='<div class="map-bar"><h2 id="formulaMapTitle">Formula map · W1–W15</h2><button type="button">Close</button></div><div class="map-index" role="navigation" aria-label="Jump to a question type"></div><div class="map-groups"></div>';
       dialog.querySelector('button').onclick=()=>dialog.close();
+      const comparison=testComparison();dialog.querySelector('.map-groups').append(comparison);
+      const tests=document.createElement('button');tests.type='button';tests.textContent='Compare hypothesis tests';
+      tests.onclick=()=>{comparison.querySelector('h3').focus({preventScroll:true});comparison.scrollIntoView({block:'start'})};
+      dialog.querySelector('.map-index').append(tests);
       for(const [question,entries] of formulaMapGroups){
         const group=document.createElement('section');group.className='map-group';
         const heading=document.createElement('h3');heading.textContent=question;heading.tabIndex=-1;group.append(heading);
