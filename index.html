@@ -2246,6 +2246,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['18 Nov 2026 · Formula map table layout and R output', ['Read a two-sample t-test line by line and compare pooled and Welch results for the same data.']],
 ['18 Nov 2026 · Formula map table layout', ['Formulas and critical values are centred in each row. Assumptions are listed on the left.']],
 ['18 Nov 2026 · One-page formula map: confidence intervals', ['Compare interval assumptions, standard errors and critical values. Each assumption has its own line in both comparison tables.']],
 ['18 Nov 2026 · One-page formula map: test comparison', ['Compare the conditions, statistic, degrees of freedom and tail for each test in Weeks 9–15.']],
@@ -2373,6 +2374,26 @@ function testComparison(){
   const note=document.createElement('p');note.textContent='Δ₀ is the claimed difference between independent means. For the regression rows, count slope coefficients excluding the intercept: p for the fitted model, pᶠ for the full model, and q for the added coefficients. F degrees of freedom are written numerator first.';section.append(note);
   return section;
 }
+function outputComparison(){
+  const section=document.createElement('section');section.className='map-group';
+  section.innerHTML='<h3 tabindex="-1">How do I read the R output?</h3><p>Two independent groups have five observations each. Suppose equal population variances are reasonable. Is there evidence that their population means differ?</p>';
+  appendConsole(section,`> x = c(8, 9, 10, 11, 12)
+> y = c(10, 12, 14, 16, 18)
+> t.test(x, y, var.equal = TRUE)
+
+        Two Sample t-test
+
+data:  x and y
+t = -2.5298, df = 8, p-value = 0.03527
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -7.6461127 -0.3538873
+sample estimates:
+mean of x mean of y
+       10        14`);
+  section.insertAdjacentHTML('beforeend','<ol><li><strong>Read the estimates and the subtraction order.</strong> R takes x minus y. The observed difference is 10 − 14 = −4.</li><li><strong>Identify the method.</strong> <code>var.equal = TRUE</code> selects pooled t. The two groups contribute 4 + 4 = 8 df. Pooling the sample variances gives sₚ² = (4 × 2.5 + 4 × 10)/8 = 6.25, so sₚ = 2.5.</li><li><strong>Connect SE to the printed t.</strong> The difference has SE = 2.5 × √(1/5 + 1/5) ≈ 1.581. Testing a zero difference gives t = (−4 − 0)/1.581 ≈ −2.53. R displays t directly; <code>t.test(x, y, var.equal = TRUE)$stderr</code> returns the SE.</li><li><strong>Read the alternative before the p-value.</strong> “Not equal to 0” means two-sided. Since 0.03527 &lt; 0.05, reject equal population means at 5%.</li><li><strong>Interpret the interval in the same order.</strong> The 95% CI for μₓ − μᵧ is [−7.65, −0.35]. Both endpoints are negative: the estimated population mean for x is lower.</li></ol><p><strong>What changes with Welch?</strong> On the same data, <code>t.test(x, y)</code> prints <code>Welch Two Sample t-test</code>, df = 5.8824 and p = 0.04546. Read the reported df. The t values coincide here because the group sizes are equal; the reference distributions differ.</p>');
+  return section;
+}
 function formulaMapButton(){
   const button=document.createElement('button');button.type='button';button.textContent='Formula map · W1–W15';
   button.setAttribute('aria-haspopup','dialog');
@@ -2383,7 +2404,7 @@ function formulaMapButton(){
       dialog.setAttribute('aria-labelledby','formulaMapTitle');
       dialog.innerHTML='<div class="map-bar"><h2 id="formulaMapTitle">Formula map · W1–W15</h2><button type="button">Close</button></div><div class="map-index" role="navigation" aria-label="Jump to a question type"></div><div class="map-groups"></div>';
       dialog.querySelector('button').onclick=()=>dialog.close();
-      for(const [label,comparison] of [['Compare confidence intervals',intervalComparison()],['Compare hypothesis tests',testComparison()]]){
+      for(const [label,comparison] of [['Compare confidence intervals',intervalComparison()],['Compare hypothesis tests',testComparison()],['Read R output',outputComparison()]]){
         dialog.querySelector('.map-groups').append(comparison);
         const jump=document.createElement('button');jump.type='button';jump.textContent=label;
         jump.onclick=()=>{comparison.querySelector('h3').focus({preventScroll:true});comparison.scrollIntoView({block:'start'})};
