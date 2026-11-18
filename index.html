@@ -750,6 +750,10 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 .test-guide th[scope=row]{width:17%}
 .test-guide math{display:block math;width:fit-content;max-width:100%;margin:.25rem auto}
 .test-guide small{color:inherit}
+@media(min-width:721px){
+  .test-guide tr:has(.cell-note) td:nth-child(n+3){vertical-align:top}
+  .test-guide tr:has(.cell-note) td:nth-child(n+3)>:is(math,.math-line):first-child{min-height:2.8em;align-content:center;margin-block:0}
+}
 .test-guide{line-height:1.4}.test-guide thead{background:rgb(84 135 125 / .1);font:600 .91rem/1.35 var(--label)}
 .test-guide tbody tr:nth-child(even){background:rgb(84 135 125 / .04)}
 .test-guide .math-line{display:block;white-space:nowrap}.test-guide .cell-note{display:block;font-size:.9em;margin-top:.3em}
@@ -2323,20 +2327,22 @@ function intervalComparison(){
   const frac=(a,b)=>'<mfrac><mtext>'+a+'</mtext><mtext>'+b+'</mtext></mfrac>';
   const math=body=>'<math displaystyle="true">'+body+'</math>';
   const root=body=>'<msqrt>'+body+'</msqrt>';
+  const note=text=>'<span class="cell-note">'+text+'</span>';
+  const line=text=>'<span class="math-line">'+text+'</span>';
   const twoSE=(a,b)=>math(root(frac(a,'n₁')+'<mo>+</mo>'+frac(b,'n₂')));
   const rows=[
     ['Proportion · Wald (W8)','Independent binary observations|Same success probability|Enough successes and failures for a normal approximation',math(root(frac('p̂(1 − p̂)','n'))),'z*','p̂ ± z* SE'],
     ['Proportion · Wilson (W8)','Independent binary observations|Same success probability',math(root(frac('p(1 − p)','n')))+'<span class="cell-note">For each candidate&nbsp;p</span>','z*','<span class="math-line">|p̂ − p| ≤ z* SE(p)</span><span class="cell-note">Keep all p satisfying this condition.</span>'],
     ['Mean · known SD (W8–9)','Independent draws|Population SD σ known|Normal population or approximately normal sample mean',math(frac('σ','√n')),'z*','x̄ ± z* SE'],
     ['Mean · unknown SD (W10)','Independent draws|Population SD estimated by s|For small n, roughly normal population without strong outliers',math(frac('s','√n')),'t* · df = n − 1','x̄ ± t* SE'],
-    ['Mean · bootstrap-t (W10)','Independent draws|Sample represents the population spread|Resample n observations with replacement; each resample needs a usable SE',math(frac('s','√n'))+' for endpoints; use s*/√n inside each resampled t.','Empirical quantiles L and U of (x̄* − x̄)/(s*/√n)','[x̄ − U SE, x̄ − L SE]. For 95%, L and U are the 2.5% and 97.5% quantiles.'],
-    ['Mean paired difference (W11)','Matched or repeated measurements|Independent pairs|For few pairs, roughly normal differences',math(frac('sᴅ','√n'))+' with n pairs','t* · df = n − 1','d̄ ± t* SE. Define the subtraction order first.'],
+    ['Mean · bootstrap-t (W10)','Independent draws|Sample represents the population spread|Resample n observations with replacement; each resample needs a usable SE',math(frac('s','√n'))+note('Original sample SE'),math('<mtext>T* = </mtext>'+frac('x̄* − x̄','s*/√n'))+note('Use the lower and upper quantiles of T*.'),line('[x̄ − U SE, x̄ − L SE]')+note('At 95%, L and U are the 2.5% and 97.5% bootstrap quantiles.')],
+    ['Mean paired difference (W11)','Matched or repeated measurements|Independent pairs|For few pairs, roughly normal differences',math('<mfrac><msub><mi>s</mi><mi>d</mi></msub>'+root('<mi>n</mi>')+'</mfrac>')+note('n = number of pairs'),line('t*')+note('df = n − 1'),line('d̄ ± t* SE')+note('Use the stated subtraction order.')],
     ['Independent means · known SDs (W11)',independent+'|Both population SDs known|Both sample means approximately normal',twoSE('σ₁²','σ₂²'),'z*','(x̄₁ − x̄₂) ± z* SE'],
-    ['Independent means · pooled (W11)',independent+'|Equal population variances|For small samples, roughly normal populations',math('<mtext>sₚ</mtext>'+root(frac('1','n₁')+'<mo>+</mo>'+frac('1','n₂')))+' using the pooled SD','t* · df = n₁ + n₂ − 2','(x̄₁ − x̄₂) ± t* SE'],
+    ['Independent means · pooled (W11)',independent+'|Equal population variances|For small samples, roughly normal populations',math('<mtext>sₚ</mtext>'+root(frac('1','n₁')+'<mo>+</mo>'+frac('1','n₂')))+note('Use the pooled SD.'),'t* · df = n₁ + n₂ − 2','(x̄₁ − x̄₂) ± t* SE'],
     ['Independent means · Welch (W11)',independent+'|Group variances may differ|For small samples, roughly normal populations',twoSE('s₁²','s₂²'),'t* · use Welch df from R','(x̄₁ − x̄₂) ± t* SE'],
     ['Linear regression slope (W13)','Independent errors|Linear conditional mean|Constant error variance|Normal errors for exact small-sample inference','Std. Error from the coefficient row','t* · df = n − p − 1 for p slopes','β̂ⱼ ± t* SE'],
-    ['Logistic coefficient · Wald (W15)',logistic,'Std. Error from the coefficient row','z*','β̂ⱼ ± z* SE on the log-odds scale.'],
-    ['Odds ratio · Wald (W15)',logistic,'Use the coefficient SE on the log-odds scale.','z* before exponentiating','Exponentiate both endpoints: [exp(β̂ⱼ − z* SE), exp(β̂ⱼ + z* SE)].']
+    ['Logistic coefficient · Wald (W15)',logistic,'Std. Error from the coefficient row','z*',line('β̂ⱼ ± z* SE')+note('Log-odds scale')],
+    ['Odds ratio · Wald (W15)',logistic,'Use the coefficient SE on the log-odds scale.','z* before exponentiating',line('[exp(L), exp(U)]')+note('L and U are the coefficient interval endpoints.')]
   ];
   section.append(comparisonTable('Confidence intervals compared',['Interval','Assumptions','Standard error','Critical value','Interval calculation'],rows));return section;
 }
