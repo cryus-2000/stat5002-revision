@@ -744,7 +744,12 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 .map-window{width:min(56rem,94vw);max-height:86dvh;padding:0;color:var(--ink);background:Canvas;border:1px solid #849c94;border-radius:9px;overflow:auto;overscroll-behavior:contain}
 .map-window::backdrop{background:rgb(20 35 31 / .48)}
 .map-assumptions{padding-inline-start:1.05em;margin:0}.map-assumptions li+li{margin-top:.3em}
-.test-guide{width:100%;border-collapse:collapse;font-size:.95rem}.test-guide th,.test-guide td{text-align:left;vertical-align:top;padding:.65rem .4rem;border-bottom:1px solid #849c9466}.test-guide th[scope=row]{width:17%}.test-guide math{display:block;margin:.25rem 0}.test-guide small{color:inherit}
+.test-guide{width:100%;border-collapse:collapse;font-size:.95rem}
+.test-guide th,.test-guide td{text-align:center;vertical-align:middle;padding:.65rem .4rem;border-bottom:1px solid #849c9466}
+.test-guide th:first-child,.test-guide :is(th,td):nth-child(2){text-align:left}
+.test-guide th[scope=row]{width:17%}
+.test-guide math{display:block math;width:fit-content;max-width:100%;margin:.25rem auto}
+.test-guide small{color:inherit}
 @media(max-width:720px){.test-guide,.test-guide tbody,.test-guide tr,.test-guide td,.test-guide th[scope=row]{display:block;width:100%}.test-guide thead{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}.test-guide tr{padding:.65rem 0;border-bottom:1px solid #849c94}.test-guide td,.test-guide th{border:0;padding:.2rem 0}.test-guide td:before{content:attr(data-label);display:block;font:600 .83rem var(--label);margin-top:.25rem}}
 @media (prefers-reduced-motion:no-preference){
   .map-window{scroll-behavior:smooth;opacity:0;transform:translateY(6px);transition:opacity .16s ease,transform .16s ease,display .16s allow-discrete,overlay .16s allow-discrete}
@@ -2233,6 +2238,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['18 Nov 2026 · Formula map table layout', ['Formulas and critical values are centred in each row. Assumptions are listed on the left.']],
 ['18 Nov 2026 · One-page formula map: confidence intervals', ['Compare interval assumptions, standard errors and critical values. Each assumption has its own line in both comparison tables.']],
 ['18 Nov 2026 · One-page formula map: test comparison', ['Compare the conditions, statistic, degrees of freedom and tail for each test in Weeks 9–15.']],
 ['18 Nov 2026 · One-page formula map', ['Read the Week 1–15 formulas on one page. Jump to a question type to compare methods, check their conditions and see which formulas are supplied in the exam.', 'The map fades in and out. Its index scrolls to and highlights the selected heading. Reduced-motion settings use an instant jump.']],
