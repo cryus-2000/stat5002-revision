@@ -743,6 +743,7 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 /* tabs stay at the top of the reading area, so "All weeks" is always one click away */
 .map-window{width:min(76rem,96vw);max-height:90dvh;padding:0;color:var(--ink);background:Canvas;border:1px solid #849c94;border-radius:9px;overflow:auto;overscroll-behavior:contain}
 .map-window::backdrop{background:rgb(20 35 31 / .48)}
+.paper-numbers{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.5rem,1fr));gap:.25rem}.paper-numbers button{margin:0;padding:.45rem .1rem}.paper-numbers [data-done=true]{box-shadow:inset 0 -3px #4e8b7f}.paper-numbers [aria-current=step]{outline:2px solid #528e89;font-weight:bold}.paper-options button{display:block;width:100%;text-align:left;margin:.4rem 0}.paper-options [data-verdict]{opacity:1}.paper-feedback{padding:.75rem 1rem;margin:1rem 0;border-inline-start:3px solid #528e89;background:rgb(84 135 125 / .09)}.paper-feedback p{margin:.25rem 0}
 .full-paper{width:min(54rem,96vw)}.full-paper fieldset{min-width:0;margin:1rem 0;padding:.7rem 1rem;border:1px solid #849c9466}.full-paper legend{font-weight:600;padding:0 .3rem}.full-paper label{color:inherit;display:block;margin:.55rem 0}.full-paper textarea{display:block;margin:.45rem 0 1rem}.full-paper select{width:auto}.full-paper .map-index{padding:0}
 .map-assumptions{padding-inline-start:1.05em;margin:0}.map-assumptions li+li{margin-top:.3em}
 .test-guide{width:100%;border-collapse:collapse;font-size:.95rem}
@@ -2247,6 +2248,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['20 Nov 2026 · Question-by-question mocks', ['Jump by number, see the explanation after each choice, and check written parts individually.']],
 ['20 Nov 2026 · Extended written cases', ['Each mock has 18 written parts across four cases. Existing drafts resume in place; completed attempts retain their original marking scheme.']],
 ['20 Nov 2026 · Mock exam wording', ['Revised written cases ask you to choose a procedure, interpret R output and justify your conclusion. Previously saved answers can be reviewed against the revised prompts.']],
 ['20 Nov 2026 · Two full mock exams', ['Open Mock 1 or Mock 2 on All weeks. Each paper includes 16 original MCQs and four written cases with solutions.']],
@@ -2485,45 +2487,56 @@ function openFullPaper(number){
     const legacy=run.submitted && !run.edition;
     const cases=paper.cases.map(([title,stem,r,parts])=>[title,stem,r,legacy?parts.slice(0,3):parts]);
     const partCount=cases.reduce((n,c)=>n+c[3].length,0);
-    body.append(make('p','10 minutes reading · 2 hours writing · 16 multiple-choice questions (40 marks) · 4 written cases (60 marks). Answers save in this browser.'));
-    if(legacy)body.append(make('p','Completed under the earlier 12-part marking scheme. Retaking opens the expanded paper.'));
-    const status=make('p','');body.append(status);
-    function progress(){
-      const mc=Object.keys(run.answers).length,written=Object.values(run.drafts).filter(s=>s.trim()).length;
-      const score=paper.mc.filter((q,i)=>q[2]===run.answers[i]).length*2.5,marks=Object.values(run.marks);
-      status.textContent=run.submitted?'MCQ '+score+'/40 · Written '+marks.reduce((a,b)=>a+b,0)+'/60 ('+marks.length+'/'+partCount+' parts self-marked)'+(marks.length===partCount?' · Total '+(score+marks.reduce((a,b)=>a+b,0))+'/100':''):mc+'/16 MCQs answered · '+written+'/'+partCount+' written responses';
-    }
-    progress();
-    const jump=document.createElement('div');jump.className='map-index';body.append(jump);
-    function heading(title){
-      const h=make('h3',title);h.tabIndex=-1;h.style.scrollMarginTop='5rem';body.append(h);
-      btn(jump,title,()=>{h.focus({preventScroll:true});h.scrollIntoView({block:'start'})});
-    }
-    heading('Multiple choice');
-    paper.mc.forEach(([stem,options,right,why,r],i)=>{
-      const box=document.createElement('fieldset');box.append(make('legend',(i+1)+'. '+stem));if(r)appendConsole(box,r);
+    const pages=paper.mc.map((_,i)=>({mc:i}));
+    cases.forEach((c,i)=>c[3].forEach((_,j)=>pages.push({i,j,id:i+'-'+j})));
+    const pos=pages[run.pos]?run.pos:0,current=pages[pos];
+    function move(n){run.pos=n;save();render();dialog.scrollTop=0;body.querySelector('[aria-current="step"]').focus({preventScroll:true})}
+    if(legacy)body.append(make('p','Saved result · original 12-part written section'));
+    const score=paper.mc.filter((q,i)=>q[2]===run.answers[i]).length*2.5;
+    const written=Object.values(run.marks).reduce((a,b)=>a+b,0);
+    const status=make('p','MCQ '+score+'/40 · Written '+written+'/60 · '+Object.keys(run.marks).length+'/'+partCount+' self-marked');
+    body.append(status);
+    if(run.submitted)status.append(' · Total '+(score+written)+'/100');
+    const numbers=make('div','');numbers.className='paper-numbers';numbers.setAttribute('role','navigation');numbers.setAttribute('aria-label','Question numbers');body.append(numbers);
+    pages.forEach((item,n)=>{
+      const b=btn(numbers,String(n+1),()=>move(n));
+      const answered=item.mc!==undefined?run.answers[item.mc]!==undefined:!!run.drafts[item.id]?.trim();
+      b.dataset.done=String(answered);if(n===pos)b.setAttribute('aria-current','step');
+      b.setAttribute('aria-label','Question '+(n+1)+(answered?', answered':''));
+    });
+    const feedback=(title,text)=>{const box=make('section','');box.className='paper-feedback';box.append(make('strong',title),make('p',text));body.append(box)};
+    if(current.mc!==undefined){
+      const [stem,options,right,why,r]=paper.mc[pos],chosen=run.answers[pos];
+      body.append(make('h3','Question '+(pos+1)+' · Multiple choice'),make('p',stem));if(r)appendConsole(body,r);
+      const choices=make('div','');choices.className='paper-options';body.append(choices);
       options.forEach((option,j)=>{
-        const label=document.createElement('label'),input=document.createElement('input');input.type='radio';input.name='full-'+i;input.checked=run.answers[i]===j;input.disabled=run.submitted;
-        input.onchange=()=>{run.answers[i]=j;save();progress()};label.append(input,' '+String.fromCharCode(65+j)+'. '+option);box.append(label);
+        const b=btn(choices,String.fromCharCode(65+j)+'. '+option,()=>{run.answers[pos]=j;save();render();body.querySelector('.paper-feedback')?.scrollIntoView({block:'nearest'})});
+        b.disabled=chosen!==undefined||run.submitted;
+        if(b.disabled && (j===right||j===chosen))b.dataset.verdict=j===right?'right':'wrong';
       });
-      if(run.submitted)box.append(make('p',(run.answers[i]===right?'Correct. ':'Answer: ')+String.fromCharCode(65+right)+'. '+why));
-      body.append(box);
-    });
-    cases.forEach(([title,stem,r,parts],i)=>{
-      heading('Case '+(i+1)+' · '+title);body.append(make('p',stem));appendConsole(body,r);
-      parts.forEach(([question,solution,weight],j)=>{
-        const maximum=legacy?5:weight;
-        const id=i+'-'+j,label=make('label','('+String.fromCharCode(97+j)+') '+question+' ('+maximum+' marks)'),input=document.createElement('textarea');
-        input.rows=3;input.value=run.drafts[id]||'';input.readOnly=run.submitted;input.oninput=()=>{run.drafts[id]=input.value;save();progress()};label.append(input);body.append(label);
-        if(run.submitted){
-          body.append(make('p',solution));const scoreLabel=make('label','Your mark '),select=document.createElement('select');
-          select.add(new Option('Choose',''));for(let n=0;n<=maximum;n++)select.add(new Option(n+' / '+maximum,String(n)));
-          select.value=run.marks[id]??'';select.onchange=()=>{if(select.value==='')delete run.marks[id];else run.marks[id]=Number(select.value);save();progress()};scoreLabel.append(select);body.append(scoreLabel);
-        }
-      });
-    });
-    if(!run.submitted)btn(body,'Submit and review',()=>{if(!window.confirm('Finish this attempt and reveal solutions? Any blank responses receive no credit.'))return;run.edition=2;run.submitted=true;save();render();dialog.scrollTop=0});
-    else btn(body,'Retake this paper',()=>{if(!window.confirm('Clear this paper’s answers and marks for a new attempt?'))return;run={answers:{},drafts:{},marks:{},submitted:false};save();render();dialog.scrollTop=0});
+      if(chosen!==undefined||run.submitted)feedback(chosen===right?'Correct':'Answer '+String.fromCharCode(65+right),why);
+    }else{
+      const {i,j,id}=current,[title,stem,r,parts]=cases[i],[question,solution,weight]=parts[j],maximum=legacy?5:weight;
+      body.append(make('h3','Case '+(i+1)+' · '+title),make('p',stem));if(r)appendConsole(body,r);
+      const label=make('label','('+String.fromCharCode(97+j)+') '+question+' ('+maximum+' marks)'),input=document.createElement('textarea');
+      const checked=run.submitted||!!run.checked?.[id]||run.marks[id]!==undefined;
+      input.rows=4;input.value=run.drafts[id]||'';input.readOnly=checked;label.append(input);body.append(label);
+      if(!checked){
+        const check=btn(body,'Check this part',()=>{(run.checked||={})[id]=true;save();render();body.querySelector('.paper-feedback').scrollIntoView({block:'nearest'})});
+        check.disabled=!input.value.trim();
+        input.oninput=()=>{run.drafts[id]=input.value;check.disabled=!input.value.trim();numbers.children[pos].dataset.done=String(!check.disabled);save()};
+      }else{
+        feedback('Model answer',solution);
+        const mark=make('label','Your mark '),select=document.createElement('select');select.add(new Option('Choose',''));
+        for(let n=0;n<=maximum;n++)select.add(new Option(n+' / '+maximum,String(n)));
+        select.value=run.marks[id]??'';select.onchange=()=>{if(select.value==='')delete run.marks[id];else run.marks[id]=Number(select.value);save();render()};mark.append(select);body.append(mark);
+      }
+    }
+    const controls=make('div','');body.append(controls);
+    btn(controls,'Previous',()=>move(pos-1)).disabled=pos===0;
+    btn(controls,'Next',()=>move(pos+1)).disabled=pos===pages.length-1;
+    if(!run.submitted && pos===pages.length-1)btn(controls,'Finish attempt',()=>{if(!window.confirm('Finish this attempt and reveal any remaining answers?'))return;run.edition=2;run.submitted=true;save();render()});
+    if(run.submitted)btn(controls,'Retake this paper',()=>{if(!window.confirm('Clear this paper’s answers and marks for a new attempt?'))return;run={answers:{},drafts:{},marks:{},submitted:false};save();render()});
   }
   dialog.onclose=()=>dialog.remove();document.body.append(dialog);render();dialog.showModal();
 }
@@ -2545,7 +2558,7 @@ function renderHome(){
   home.append(top);
   home.append(formulaMapButton());
   const exams=make('section','unit');exams.append(make('h3','unit-head','Full mock exams'));
-  exams.append(make('p','','16 MCQs and 4 written cases per paper · 2 hours'));
+  exams.append(make('p','','16 MCQs and 4 written cases per paper · Check each answer as you go'));
   fullPapers.forEach((paper,i)=>btn(exams,paper.name,()=>openFullPaper(i)));home.append(exams);
   if(!ids.length){const lost=make('p','lost-note','No answers are saved in this browser yet. If you have answered questions before and kept a progress file, load it with ');const b=make('button','','Import progress');b.type='button';b.onclick=()=>$('importProgress').click();lost.append(b,'. To stop this happening, turn on ');const a=make('button','','Autosave to a file');a.type='button';a.onclick=()=>$('autoSave').click();lost.append(a,', which writes your progress to a file after every answer.');home.append(lost)}
   if(state.seenUpdate!==updates[0][0]+'#'+updates[0][1].length){
