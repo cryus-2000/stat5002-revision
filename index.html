@@ -757,6 +757,9 @@ html[data-theme=dark] .demo-read code{color:#9fd6c4}
 .test-guide .method-week,.test-guide .cell-note{display:block;font:normal .85em/1.4 var(--label);margin-top:.3em}
 .test-guide .method-week{font-size:.76em;letter-spacing:.03em}
 .test-guide .math-line{display:block}
+.test-guide .pooled-step{display:block;font:600 .9em/1.35 var(--label);margin:.65rem 0 .15rem}
+.test-guide .pooled-step:first-child{margin-top:0}
+.ch-line math.pooled-sd{display:block math;width:fit-content;margin:.4em 0}
 .test-guide math{display:block math;width:fit-content;max-width:100%;margin:.25rem auto}
 @media(min-width:961px){.test-guide th[scope=row]{width:15%}.test-guide thead th:nth-child(2){width:25%}.test-guide thead th:nth-child(4){width:15%}}
 @media(max-width:960px){
@@ -1510,7 +1513,7 @@ const sheetTopics={
   'Tails':['How do I read a p-value from a t distribution?'],
   'Studentised bootstrap':['How do resampled t statistics give an interval for the mean?','A star marks a quantity calculated from one bootstrap sample. The original sample mean stays fixed across resamples.'],
   'Independent groups':['How do I compare two independent means?','Group X has m observations and group Y has n. The difference is X minus Y. The test statistic shown assumes a null difference of zero.'],
-  'Classical two-sample T-test (pooled)':['How do I compare means under a common variance assumption?','The sample SDs σ̂<sub>X</sub> and σ̂<sub>Y</sub> come from groups of sizes m and n.'],
+  'Classical two-sample T-test (pooled)':['How do I compare means under a common variance assumption?','The sample SDs σ̂<sub>X</sub> and σ̂<sub>Y</sub> come from groups of sizes m and n. The Formula map writes the pooled SD σ̂<sub>p</sub> as s<sub>p</sub>.'],
   'Welch test':['How do I compare means when the variances may differ?','m and n are the sample sizes of groups X and Y.'],
   'Paired T-test':['How do I compare two measurements on the same unit?','There are n independent pairs. The test shown assumes a population mean difference of zero under the null.'],
   'Pearson test':['How far are the observed counts from what the null predicts?','O is an observed count and E is its expected count under the null.'],
@@ -2197,13 +2200,19 @@ const chooserTree={q:'Start from the data the question gives you and follow the 
     {l:'One coefficient, linear model',s:'A row of summary(lm(...))',e:'does one predictor help, with the other two kept in?',o:[{r:9,d:'t'}]},
     {l:'Several predictors at once',s:'Two nested models',e:'does adding two predictors lower the RSS enough?',o:[{r:10,d:'F'}]},
     {l:'One coefficient, logistic model',s:'A row of summary(glm(...))',e:'do hours studied change the odds of passing?',o:[{r:11,d:'Z'}]}]}]};
+function pooledSdFormula(){
+  const size=i=>'<msub><mi>n</mi><mn>'+i+'</mn></msub>';
+  const contribution=i=>'<mo>(</mo>'+size(i)+'<mo>−</mo><mn>1</mn><mo>)</mo><msubsup><mi>s</mi><mn>'+i+'</mn><mn>2</mn></msubsup>';
+  return '<math class="pooled-sd" displaystyle="true"><msub><mi>s</mi><mi>p</mi></msub><mo>=</mo><msqrt><mfrac><mrow>'+contribution(1)+'<mo>+</mo>'+contribution(2)+'</mrow><mrow>'+size(1)+'<mo>+</mo>'+size(2)+'<mo>−</mo><mn>2</mn></mrow></mfrac></msqrt></math>';
+}
+const pooledSdInputs='Use the sample SDs s₁ and s₂ and the group sizes n₁ and n₂.';
 const chooserNotes=[
   ['p = p₀','p̂ is the sample proportion, p₀ the claimed value and n the sample size.','<code>pnorm(z)</code> gives the area to the left of z'],
   ['μ = μ₀','x̄ is the sample mean, μ₀ the claimed mean, σ the population SD and n the sample size.','<code>pnorm(z)</code> gives the area to the left of z'],
   ['μ = μ₀','x̄ is the sample mean, μ₀ the claimed mean, s the sample SD and n the sample size.','<code>t.test(x, mu = mu0)</code>'],
   ['the mean difference is 0','d̄ and s<sub>d</sub> are the mean and SD of the n differences, one per unit.','<code>t.test(x, y, paired = TRUE)</code>'],
   ['μ₁ = μ₂','x̄₁ and x̄₂ are the two sample means, σ₁ and σ₂ the population SDs, n₁ and n₂ the group sizes.','<code>pnorm(z)</code> gives the area to the left of z'],
-  ['μ₁ = μ₂','s<sub>p</sub> is the pooled SD, which combines the two sample SDs into one estimate of the common spread.','<code>t.test(x, y, var.equal = TRUE)</code>'],
+  ['μ₁ = μ₂',pooledSdInputs+pooledSdFormula(),'<code>t.test(x, y, var.equal = TRUE)</code>'],
   ['μ₁ = μ₂','s₁ and s₂ are the two sample SDs. The degrees of freedom are usually not a whole number, so read them from the output.','<code>t.test(x, y)</code>'],
   ['the category proportions equal the stated values','O is an observed count and E = n × stated proportion; add over the k categories.','<code>chisq.test(x, p = p0)</code>'],
   ['the two variables are independent','O is an observed count and E = row total × column total ÷ n; add over every cell of the r × c table.','<code>chisq.test(table)</code>'],
@@ -2345,6 +2354,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['20 Nov 2026 · Pooled standard deviation', ['Both W11 comparison rows show how to calculate the pooled SD from the two sample SDs before using it in an interval or test.']],
 ['20 Nov 2026 · Reading the formula sheets', ['Weekly sheets now introduce each calculation beside its equation. The Formula map keeps these explanations with the formulas and distinguishes the critical value from its degrees of freedom.']],
 ['20 Nov 2026 · Confidence interval notation', ['The t critical value and its degrees of freedom now appear on separate lines.']],
 ['20 Nov 2026 · Question-by-question mocks', ['Jump by number, see the explanation after each choice, and check written parts individually.']],
@@ -2448,7 +2458,7 @@ function intervalComparison(){
     ['Mean · bootstrap-t (W10)','Independent draws|Sample captures the population spread|Resample n values with replacement',math(frac('s','√n'))+note('Use the original sample SE for the endpoints.'),math('<mtext>T* = </mtext>'+frac('x̄* − x̄','s*/√n'))+note('x̄* and s* are the mean and SD of one resample.'),line('[x̄ − U SE, x̄ − L SE]')+note('For 95%, take L and U at the 2.5th and 97.5th percentiles of the resampled T* values.')],
     ['Mean paired difference (W11)','Matched or repeated measurements|Independent pairs|For few pairs, roughly normal differences',math('<mfrac><msub><mi>s</mi><mi>d</mi></msub>'+root('<mi>n</mi>')+'</mfrac>')+note('Take one difference per pair. Use the SD of those differences.'),tCritical('df = n − 1 for n pairs'),line('d̄ ± t* SE')+note('d̄ is the mean of the differences in the stated order.')],
     ['Independent means · known SDs (W11)',independent+'|Both population SDs known|Both sample means approximately normal',twoSE('σ₁²','σ₂²'),zCritical,'(x̄₁ − x̄₂) ± z* SE'],
-    ['Independent means · pooled (W11)',independent+'|Equal population variances|For small samples, roughly normal populations',math('<mtext>sₚ</mtext>'+root(frac('1','n₁')+'<mo>+</mo>'+frac('1','n₂')))+note('sₚ is the pooled SD of the two groups.'),tCritical('df = n₁ + n₂ − 2'),'(x̄₁ − x̄₂) ± t* SE'],
+    ['Independent means · pooled (W11)',independent+'|Equal population variances|For small samples, roughly normal populations','<span class="pooled-step">Pooled SD</span>'+pooledSdFormula()+note(pooledSdInputs)+'<span class="pooled-step">SE of the difference</span>'+math('<mtext>SE = sₚ</mtext>'+root(frac('1','n₁')+'<mo>+</mo>'+frac('1','n₂'))),tCritical('df = n₁ + n₂ − 2'),'(x̄₁ − x̄₂) ± t* SE'],
     ['Independent means · Welch (W11)',independent+'|Group variances may differ|For small samples, roughly normal populations',twoSE('s₁²','s₂²'),tCritical('Read the Welch df from R.'),'(x̄₁ − x̄₂) ± t* SE'],
     ['Linear regression slope (W13)','Independent errors|Linear conditional mean|Constant error variance|Normal errors for exact small-sample inference','Read <code>Std. Error</code> on the predictor’s row.',tCritical('df = n − p − 1 for p slope coefficients'),line('β̂ⱼ ± t* SE')+note('β̂ⱼ is the estimate on that row.')],
     ['Logistic coefficient · Wald (W15)',logistic,'Read <code>Std. Error</code> on the predictor’s row.',zCritical,line('β̂ⱼ ± z* SE')+note('Endpoints are in log-odds units.')],
@@ -2480,7 +2490,7 @@ function testComparison(){
     ['One mean, unknown SD · W10','Independent observations|Use sample SD s|For small samples, roughly normal population without strong outliers',score('x̄ − μ₀',overRootN('s')),tRef('df = n − 1'),signed],
     ['Paired means · W11','Matched units or repeated measurements|Independent pairs|For few pairs, roughly normal differences',score('d̄ − d₀',fraction('<msub><mi>s</mi><mi>d</mi></msub>',root('<mi>n</mi>')))+note('d₀ is the claimed mean difference, usually 0.'),tRef('df = n − 1 for n pairs'),signed],
     ['Independent means, known SDs · W11','Independent random samples|Both population SDs known|Each sample mean approximately normal',score(delta,sumFractions('σ₁²','σ₂²'))+note('Δ₀ is the claimed difference, usually 0.'),zRef,signed],
-    ['Pooled means · W11','Independent random samples|Equal population variances|For small samples, roughly normal populations',score(delta,'<mrow>'+term('sₚ')+sumFractions('1','1')+'</mrow>')+note('Pool the sample variances using their df as weights, then take the square root to get sₚ.'),tRef('df = n₁ + n₂ − 2'),signed],
+    ['Pooled means · W11','Independent random samples|Equal population variances|For small samples, roughly normal populations','<span class="pooled-step">Pooled SD</span>'+pooledSdFormula()+note(pooledSdInputs)+'<span class="pooled-step">Test statistic</span>'+math('<mi>t</mi><mo>=</mo>'+fraction(term(delta),'<mrow>'+term('sₚ')+sumFractions('1','1')+'</mrow>'))+note('Δ₀ is the difference specified by H₀.'),tRef('df = n₁ + n₂ − 2'),signed],
     ['Welch means · W11','Independent random samples|Group variances may differ|For small samples, roughly normal populations',score(delta,sumFractions('s₁²','s₂²')),tRef('Read the Welch df from R.'),signed],
     ['Goodness of fit · W12','Independent observations|One category per observation|Expected counts large enough for the χ² approximation',chiStat+note('For each category, compare the observed count O with the expected count E = n × claimed probability.'),'χ² distribution'+note('df = k − 1 − h for k categories and h parameters estimated from these counts.'),'Upper tail'+note('Larger discrepancies give larger χ².')],
     ['Independence · W12','Two categorical variables|Independent units|One cell per unit|Expected counts large enough for the χ² approximation',chiStat+note('For each cell, E = (row total × column total) / grand total.'),'χ² distribution'+note('df = (rows − 1)(columns − 1)'),'Upper tail'+note('Large χ² signals an association.')],
