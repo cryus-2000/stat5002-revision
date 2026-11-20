@@ -2248,6 +2248,7 @@ function renderMissed(){
 }
 // Update log, newest first: [date, [changes]]. Add a new entry at the top whenever the page changes. Keep each line to a few words, like release notes.
 const updates=[
+['20 Nov 2026 · Confidence interval notation', ['The t critical value and its degrees of freedom now appear on separate lines.']],
 ['20 Nov 2026 · Question-by-question mocks', ['Jump by number, see the explanation after each choice, and check written parts individually.']],
 ['20 Nov 2026 · Extended written cases', ['Each mock has 18 written parts across four cases. Existing drafts resume in place; completed attempts retain their original marking scheme.']],
 ['20 Nov 2026 · Mock exam wording', ['Revised written cases ask you to choose a procedure, interpret R output and justify your conclusion. Previously saved answers can be reviewed against the revised prompts.']],
@@ -2342,13 +2343,13 @@ function intervalComparison(){
     ['Proportion · Wald (W8)','Independent binary observations|Same success probability|Enough successes and failures for a normal approximation',math(root(frac('p̂(1 − p̂)','n'))),'z*','p̂ ± z* SE'],
     ['Proportion · Wilson (W8)','Independent binary observations|Same success probability',math(root(frac('p(1 − p)','n')))+'<span class="cell-note">For each candidate&nbsp;p</span>','z*','<span class="math-line">|p̂ − p| ≤ z* SE(p)</span><span class="cell-note">Keep all p satisfying this condition.</span>'],
     ['Mean · known SD (W8–9)','Independent draws|Population SD σ known|Normal population or approximately normal sample mean',math(frac('σ','√n')),'z*','x̄ ± z* SE'],
-    ['Mean · unknown SD (W10)','Independent draws|Population SD estimated by s|For small n, roughly normal population without strong outliers',math(frac('s','√n')),'t* · df = n − 1','x̄ ± t* SE'],
+    ['Mean · unknown SD (W10)','Independent draws|Population SD estimated by s|For small n, roughly normal population without strong outliers',math(frac('s','√n')),line('t*')+note('df = n − 1'),'x̄ ± t* SE'],
     ['Mean · bootstrap-t (W10)','Independent draws|Sample represents the population spread|Resample n observations with replacement; each resample needs a usable SE',math(frac('s','√n'))+note('Original sample SE'),math('<mtext>T* = </mtext>'+frac('x̄* − x̄','s*/√n'))+note('Use the lower and upper quantiles of T*.'),line('[x̄ − U SE, x̄ − L SE]')+note('At 95%, L and U are the 2.5% and 97.5% bootstrap quantiles.')],
     ['Mean paired difference (W11)','Matched or repeated measurements|Independent pairs|For few pairs, roughly normal differences',math('<mfrac><msub><mi>s</mi><mi>d</mi></msub>'+root('<mi>n</mi>')+'</mfrac>')+note('n = number of pairs'),line('t*')+note('df = n − 1'),line('d̄ ± t* SE')+note('Use the stated subtraction order.')],
     ['Independent means · known SDs (W11)',independent+'|Both population SDs known|Both sample means approximately normal',twoSE('σ₁²','σ₂²'),'z*','(x̄₁ − x̄₂) ± z* SE'],
-    ['Independent means · pooled (W11)',independent+'|Equal population variances|For small samples, roughly normal populations',math('<mtext>sₚ</mtext>'+root(frac('1','n₁')+'<mo>+</mo>'+frac('1','n₂')))+note('Use the pooled SD.'),'t* · df = n₁ + n₂ − 2','(x̄₁ − x̄₂) ± t* SE'],
-    ['Independent means · Welch (W11)',independent+'|Group variances may differ|For small samples, roughly normal populations',twoSE('s₁²','s₂²'),'t* · use Welch df from R','(x̄₁ − x̄₂) ± t* SE'],
-    ['Linear regression slope (W13)','Independent errors|Linear conditional mean|Constant error variance|Normal errors for exact small-sample inference','Std. Error from the coefficient row','t* · df = n − p − 1 for p slopes','β̂ⱼ ± t* SE'],
+    ['Independent means · pooled (W11)',independent+'|Equal population variances|For small samples, roughly normal populations',math('<mtext>sₚ</mtext>'+root(frac('1','n₁')+'<mo>+</mo>'+frac('1','n₂')))+note('Use the pooled SD.'),line('t*')+note('df = n₁ + n₂ − 2'),'(x̄₁ − x̄₂) ± t* SE'],
+    ['Independent means · Welch (W11)',independent+'|Group variances may differ|For small samples, roughly normal populations',twoSE('s₁²','s₂²'),line('t*')+note('use Welch df from R'),'(x̄₁ − x̄₂) ± t* SE'],
+    ['Linear regression slope (W13)','Independent errors|Linear conditional mean|Constant error variance|Normal errors for exact small-sample inference','Std. Error from the coefficient row',line('t*')+note('df = n − p − 1 for p slopes'),'β̂ⱼ ± t* SE'],
     ['Logistic coefficient · Wald (W15)',logistic,'Std. Error from the coefficient row','z*',line('β̂ⱼ ± z* SE')+note('Log-odds scale')],
     ['Odds ratio · Wald (W15)',logistic,'Use the coefficient SE on the log-odds scale.','z* before exponentiating',line('[exp(L), exp(U)]')+note('L and U are the coefficient interval endpoints.')]
   ];
